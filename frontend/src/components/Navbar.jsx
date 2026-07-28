@@ -18,6 +18,7 @@ export default function Navbar() {
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} style={{background: 'rgba(15, 12, 41, 0.95)'}}>
         <div className="nav-container">
           <ul className="nav-menu nav-left">
+            <li><Link to="/">HOME</Link></li>
             <li><Link to="/portfolio">PORTFOLIO</Link></li>
             <li><Link to="/about" style={{color: '#d4af37'}}>ABOUT</Link></li>
             <li><Link to="/youtube" style={{color: '#FF0000'}}>YOUTUBE</Link></li>
@@ -48,6 +49,7 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div className={`mobile-drawer ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-inner">
+          <Link to="/" onClick={close}>Home</Link>
           <Link to="/portfolio" onClick={close}>Portfolio</Link>
           <Link to="/about" onClick={close}>About</Link>
           <Link to="/youtube" onClick={close}>YouTube</Link>
