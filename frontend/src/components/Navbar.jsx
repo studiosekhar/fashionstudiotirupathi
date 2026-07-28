@@ -19,7 +19,7 @@ export default function Navbar() {
         <div className="nav-container">
           <ul className="nav-menu nav-left">
             <li><a href="#about">ABOUT</a></li>
-            <li><a href="#portfolio">PORTFOLIO</a></li>
+            <li><Link to="/portfolio">PORTFOLIO</Link></li>
           </ul>
           <div className="logo">
             <img
@@ -30,7 +30,7 @@ export default function Navbar() {
           </div>
           <ul className="nav-menu nav-right">
             <li><a href="#services">SERVICES</a></li>
-            <li><a href="#portfolio">WORK</a></li>
+            <li><Link to="/portfolio">WORK</Link></li>
             <li><Link to="/admin" className="nav-cta">ADMIN</Link></li>
           </ul>
 
@@ -48,7 +48,7 @@ export default function Navbar() {
       <div className={`mobile-drawer ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-inner">
           <a href="#about"     onClick={close}>About</a>
-          <a href="#portfolio" onClick={close}>Portfolio</a>
+          <Link to="/portfolio" onClick={close}>Portfolio</Link>
           <a href="#services"  onClick={close}>Services</a>
           <a href="#contact"   onClick={close}>Contact</a>
           <Link to="/admin" onClick={close} className="mobile-admin-btn">Admin</Link>
