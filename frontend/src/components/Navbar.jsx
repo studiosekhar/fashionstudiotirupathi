@@ -15,10 +15,10 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} style={{background: 'rgba(15, 12, 41, 0.95)'}}>
         <div className="nav-container">
           <ul className="nav-menu nav-left">
-            <li><Link to="/about">ABOUT</Link></li>
+            <li><Link to="/about" style={{color: '#d4af37'}}>ABOUT</Link></li>
             <li><Link to="/portfolio">PORTFOLIO</Link></li>
           </ul>
           <div className="logo">
