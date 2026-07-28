@@ -11,6 +11,7 @@ import Footer from './components/Footer'
 import SocialSwipe from './components/SocialSwipe'
 import AdminPage from './pages/AdminPage'
 import PortfolioPage from './pages/PortfolioPage'
+import AboutPage from './pages/AboutPage'
 import './App.css'
 
 function Home() {
@@ -36,6 +37,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
       </Routes>

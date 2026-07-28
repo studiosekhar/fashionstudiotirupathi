@@ -18,7 +18,7 @@ export default function Navbar() {
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-container">
           <ul className="nav-menu nav-left">
-            <li><a href="#about">ABOUT</a></li>
+            <li><Link to="/about">ABOUT</Link></li>
             <li><Link to="/portfolio">PORTFOLIO</Link></li>
           </ul>
           <div className="logo">
@@ -47,7 +47,7 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div className={`mobile-drawer ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-inner">
-          <a href="#about"     onClick={close}>About</a>
+          <Link to="/about" onClick={close}>About</Link>
           <Link to="/portfolio" onClick={close}>Portfolio</Link>
           <a href="#services"  onClick={close}>Services</a>
           <a href="#contact"   onClick={close}>Contact</a>
