@@ -868,3 +868,184 @@
   color: #ff6b6b;
   margin: 0;
 }
+
+/* ===== CATEGORY MANAGER ===== */
+.category-manager {
+  background: rgba(255,255,255,0.04);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.category-btn {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.8);
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(212,175,55,0.4);
+}
+
+.category-btn.active {
+  background: rgba(212,175,55,0.2);
+  border-color: rgba(212,175,55,0.6);
+  color: rgb(212,175,55);
+}
+
+.category-btn .delete-cat {
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.category-btn .delete-cat:hover {
+  opacity: 1;
+  color: #ff5f56;
+}
+
+.add-category-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.add-category-form input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.add-category-form input:focus {
+  outline: none;
+  border-color: rgba(212,175,55,0.6);
+}
+
+.admin-add-category-btn {
+  padding: 8px 16px;
+  background: rgba(212,175,55,0.15);
+  border: 1px dashed rgba(212,175,55,0.4);
+  border-radius: 20px;
+  color: rgb(212,175,55);
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-add-category-btn:hover {
+  background: rgba(212,175,55,0.25);
+  border-color: rgba(212,175,55,0.6);
+}
+
+.admin-save-btn-sm,
+.admin-cancel-btn-sm {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-save-btn-sm {
+  background: linear-gradient(135deg, #27c93f, #00c620);
+  border: none;
+  color: #fff;
+}
+
+.admin-cancel-btn-sm {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
+}
+
+/* ===== CONFIRM DIALOG ===== */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.confirm-dialog {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.confirm-dialog h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.confirm-dialog p {
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirm-dialog-actions button {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}

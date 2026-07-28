@@ -193,14 +193,18 @@ function InquiriesPanel() {
 
 /* ─── PORTFOLIO ─── */
 function PortfolioPanel() {
-  const { portfolio, setPortfolio } = useStudio()
+  const { portfolio, setPortfolio, portfolioCategories, setPortfolioCategories } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ title: '', category: '', url: '', publicId: '', tall: false, wide: false })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [addingCategory, setAddingCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
-  const openAdd = () => { setForm({ title: '', category: '', url: '', publicId: '', tall: false, wide: false }); setEditing(null); setAdding(true) }
+  const openAdd = () => { setForm({ title: '', category: selectedCategory === 'All' ? '' : selectedCategory, url: '', publicId: '', tall: false, wide: false }); setEditing(null); setAdding(true) }
   const openEdit = (item) => { setForm({ title: item.title, category: item.category, url: item.url, publicId: item.publicId ?? '', tall: !!item.tall, wide: !!item.wide }); setEditing(item.id); setAdding(true) }
 
   const handleFileUpload = async (e) => {
@@ -230,19 +234,79 @@ function PortfolioPanel() {
   const handleDelete = async (item) => {
     setPortfolio(portfolio.filter(p => p.id !== item.id))
     if (item.publicId) await deleteFromCloudinary(item.publicId)
+    setConfirmDelete(null)
   }
+
+  const handleAddCategory = () => {
+    if (newCategoryName.trim() && !portfolioCategories.includes(newCategoryName.trim())) {
+      setPortfolioCategories([...portfolioCategories, newCategoryName.trim()])
+      setNewCategoryName('')
+      setAddingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = (cat) => {
+    if (cat === 'All') return
+    if (window.confirm(`Delete category "${cat}"? Photos in this category will not be deleted.`)) {
+      setPortfolioCategories(portfolioCategories.filter(c => c !== cat))
+      if (selectedCategory === cat) setSelectedCategory('All')
+    }
+  }
+
+  const filteredPortfolio = selectedCategory === 'All' 
+    ? portfolio 
+    : portfolio.filter(p => p.category === selectedCategory)
 
   return (
     <div className="admin-panel">
+      {/* Category Management */}
+      <div className="category-manager">
+        <div className="category-list">
+          {portfolioCategories.map(cat => (
+            <button
+              key={cat}
+              className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+              {cat !== 'All' && (
+                <span className="delete-cat" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat) }}>×</span>
+              )}
+            </button>
+          ))}
+        </div>
+        {addingCategory ? (
+          <div className="add-category-form">
+            <input
+              type="text"
+              placeholder="New category name"
+              value={newCategoryName}
+              onChange={e => setNewCategoryName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+              autoFocus
+            />
+            <button onClick={handleAddCategory} className="admin-save-btn-sm">Add</button>
+            <button onClick={() => { setAddingCategory(false); setNewCategoryName('') }} className="admin-cancel-btn-sm">Cancel</button>
+          </div>
+        ) : (
+          <button className="admin-add-category-btn" onClick={() => setAddingCategory(true)}>+ Add Category</button>
+        )}
+      </div>
+
       <div className="admin-panel-header">
-        <span>{portfolio.length} items</span>
-        <button className="admin-add-btn" onClick={openAdd}>+ Add Item</button>
+        <span>{filteredPortfolio.length} items {selectedCategory !== 'All' ? `in ${selectedCategory}` : 'total'}</span>
+        <button className="admin-add-btn" onClick={openAdd}>+ Add Photo</button>
       </div>
 
       {adding && (
         <form className="admin-add-form" onSubmit={handleSave}>
-          <input placeholder="Title" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} required />
-          <input placeholder="Category (e.g. Wedding)" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} required />
+          <input placeholder="Title (optional)" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
+          <select className="admin-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} required>
+            <option value="">Select Category</option>
+            {portfolioCategories.filter(c => c !== 'All').map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
           <div className="upload-section">
             <label className="upload-label">
               <span>📁 Upload from device</span>
@@ -274,19 +338,32 @@ function PortfolioPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Photo?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.title || 'this photo'}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-grid">
-        {portfolio.map(item => (
+        {filteredPortfolio.map(item => (
           <div key={item.id} className="admin-card">
             <img src={item.url} alt={item.title} onError={e => { e.target.src = 'https://via.placeholder.com/300x200?text=No+Image' }} />
             <div className="admin-card-info">
-              <h4>{item.title}</h4>
+              <h4>{item.title || 'Untitled'}</h4>
               <span className="admin-badge">{item.category}</span>
               {item.tall && <span className="admin-badge admin-badge--spaced">Tall</span>}
               {item.wide && <span className="admin-badge admin-badge--spaced">Wide</span>}
             </div>
             <div className="admin-card-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(item)}>✏️</button>
-              <button className="admin-delete-btn" onClick={() => handleDelete(item)}>🗑</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(item)}>🗑</button>
             </div>
           </div>
         ))}
@@ -301,6 +378,7 @@ function ServicesPanel() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ icon: '', title: '', description: '' })
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const openAdd = () => { setForm({ icon: '', title: '', description: '' }); setEditing(null); setAdding(true) }
   const openEdit = (s) => { setForm({ icon: s.icon, title: s.title, description: s.description }); setEditing(s.id); setAdding(true) }
@@ -313,6 +391,11 @@ function ServicesPanel() {
       setServices([...services, { id: Date.now(), ...form }])
     }
     setAdding(false); setEditing(null)
+  }
+
+  const handleDelete = (item) => {
+    setServices(services.filter(s => s.id !== item.id))
+    setConfirmDelete(null)
   }
 
   return (
@@ -334,6 +417,19 @@ function ServicesPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Service?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.title}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-list">
         {services.map(s => (
           <div key={s.id} className="admin-list-item">
@@ -344,7 +440,7 @@ function ServicesPanel() {
             </div>
             <div className="admin-list-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(s)}>✏️</button>
-              <button className="admin-delete-btn-inline" onClick={() => setServices(services.filter(x => x.id !== s.id))}>🗑</button>
+              <button className="admin-delete-btn-inline" onClick={() => setConfirmDelete(s)}>🗑</button>
             </div>
           </div>
         ))}
@@ -359,6 +455,7 @@ function TestimonialsPanel() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ author: '', role: '', text: '' })
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const openAdd = () => { setForm({ author: '', role: '', text: '' }); setEditing(null); setAdding(true) }
   const openEdit = (t) => { setForm({ author: t.author, role: t.role, text: t.text }); setEditing(t.id); setAdding(true) }
@@ -371,6 +468,11 @@ function TestimonialsPanel() {
       setTestimonials([...testimonials, { id: Date.now(), ...form }])
     }
     setAdding(false); setEditing(null)
+  }
+
+  const handleDelete = (item) => {
+    setTestimonials(testimonials.filter(t => t.id !== item.id))
+    setConfirmDelete(null)
   }
 
   return (
@@ -392,6 +494,19 @@ function TestimonialsPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Testimonial?</h3>
+            <p>Are you sure you want to delete the testimonial from "{confirmDelete.author}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-list">
         {testimonials.map(t => (
           <div key={t.id} className="admin-list-item">
@@ -401,7 +516,7 @@ function TestimonialsPanel() {
             </div>
             <div className="admin-list-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(t)}>✏️</button>
-              <button className="admin-delete-btn-inline" onClick={() => setTestimonials(testimonials.filter(x => x.id !== t.id))}>🗑</button>
+              <button className="admin-delete-btn-inline" onClick={() => setConfirmDelete(t)}>🗑</button>
             </div>
           </div>
         ))}
@@ -418,6 +533,7 @@ function HeroPhotosPanel() {
   const [form, setForm] = useState({ url: '', publicId: '', alt: '', rotate: '0deg' })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const ROTATIONS = ['0deg', '3deg', '-4deg', '2deg', '-3deg', '4deg', '-2deg', '5deg', '-5deg']
 
@@ -451,6 +567,7 @@ function HeroPhotosPanel() {
   const handleDelete = async (photo) => {
     setHeroPhotos(heroPhotos.filter(p => p.id !== photo.id))
     if (photo.publicId) await deleteFromCloudinary(photo.publicId)
+    setConfirmDelete(null)
   }
 
   return (
@@ -475,7 +592,7 @@ function HeroPhotosPanel() {
               className="url-input"
             />
           </div>
-          <input placeholder="Alt text (e.g. Fashion Photo)" value={form.alt} onChange={e => setForm(p => ({ ...p, alt: e.target.value }))} required />
+          <input placeholder="Alt text (optional)" value={form.alt} onChange={e => setForm(p => ({ ...p, alt: e.target.value }))} />
           <select className="admin-select" value={form.rotate} onChange={e => setForm(p => ({ ...p, rotate: e.target.value }))}>
             {ROTATIONS.map(r => <option key={r} value={r}>{r} rotation</option>)}
           </select>
@@ -493,6 +610,19 @@ function HeroPhotosPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Photo?</h3>
+            <p>Are you sure you want to delete this hero photo?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-grid">
         {heroPhotos.map(photo => (
           <div key={photo.id} className="admin-card">
@@ -500,12 +630,12 @@ function HeroPhotosPanel() {
               <img src={photo.url} alt={photo.alt} onError={e => { e.target.src = 'https://via.placeholder.com/200?text=No+Image' }} />
             </div>
             <div className="admin-card-info">
-              <h4>{photo.alt}</h4>
+              <h4>{photo.alt || 'Untitled'}</h4>
               <span className="admin-badge">{photo.rotate}</span>
             </div>
             <div className="admin-card-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(photo)}>✏️</button>
-              <button className="admin-delete-btn" onClick={() => handleDelete(photo)}>🗑</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(photo)}>🗑</button>
             </div>
           </div>
         ))}
@@ -522,6 +652,7 @@ function GalleryPanel() {
   const [form, setForm] = useState({ url: '', publicId: '', text: '' })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const openAdd = () => { setForm({ url: '', publicId: '', text: '' }); setEditing(null); setAdding(true) }
   const openEdit = (g) => { setForm({ url: g.url, publicId: g.publicId ?? '', text: g.text }); setEditing(g.id); setAdding(true) }
@@ -553,6 +684,7 @@ function GalleryPanel() {
   const handleDelete = async (item) => {
     setGalleryItems(galleryItems.filter(g => g.id !== item.id))
     if (item.publicId) await deleteFromCloudinary(item.publicId)
+    setConfirmDelete(null)
   }
 
   return (
@@ -577,7 +709,7 @@ function GalleryPanel() {
               className="url-input"
             />
           </div>
-          <input placeholder="Label (e.g. Bridal Session)" value={form.text} onChange={e => setForm(p => ({ ...p, text: e.target.value }))} required />
+          <input placeholder="Label (optional)" value={form.text} onChange={e => setForm(p => ({ ...p, text: e.target.value }))} />
           {form.url && (
             <div className="upload-preview">
               <img src={form.url} alt="preview" onError={e => e.target.style.display='none'} />
@@ -592,16 +724,29 @@ function GalleryPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Gallery Photo?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.text || 'this photo'}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-grid">
         {galleryItems.map(item => (
           <div key={item.id} className="admin-card">
             <img src={item.url} alt={item.text} onError={e => { e.target.src = 'https://via.placeholder.com/300x200?text=No+Image' }} />
             <div className="admin-card-info">
-              <h4>{item.text}</h4>
+              <h4>{item.text || 'Untitled'}</h4>
             </div>
             <div className="admin-card-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(item)}>✏️</button>
-              <button className="admin-delete-btn" onClick={() => handleDelete(item)}>🗑</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(item)}>🗑</button>
             </div>
           </div>
         ))}

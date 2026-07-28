@@ -2,11 +2,22 @@ import { createContext, useContext, useState } from 'react'
 
 const StudioContext = createContext()
 
+const DEFAULT_PORTFOLIO_CATEGORIES = [
+  'All',
+  'Wedding',
+  'Pre-Wedding',
+  'Engagement',
+  'Haldi',
+  'Reception',
+  'Birthday',
+  'Newborn',
+]
+
 const DEFAULT_PORTFOLIO = [
-  { id: 1, title: 'Fashion Week 2026', category: 'Editorial', url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=600&fit=crop', tall: true },
+  { id: 1, title: 'Fashion Week 2026', category: 'Wedding', url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=600&fit=crop', tall: true },
   { id: 2, title: 'Romantic Wedding',  category: 'Wedding',   url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=600&fit=crop', wide: true },
-  { id: 3, title: 'Bridal Elegance',   category: 'Portrait',  url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=600&fit=crop' },
-  { id: 4, title: 'Haute Couture',     category: 'Fashion',   url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=600&fit=crop' },
+  { id: 3, title: 'Bridal Elegance',   category: 'Pre-Wedding',  url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=600&fit=crop' },
+  { id: 4, title: 'Haute Couture',     category: 'Engagement',   url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=600&fit=crop' },
   { id: 5, title: 'Ceremony Moments',  category: 'Wedding',   url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&h=600&fit=crop', wide: true },
 ]
 
@@ -57,6 +68,7 @@ function save(key, value) {
 
 export function StudioProvider({ children }) {
   const [portfolio,    setPortfolioRaw]    = useState(() => load('fs_portfolio',    DEFAULT_PORTFOLIO))
+  const [portfolioCategories, setPortfolioCategoriesRaw] = useState(() => load('fs_portfolio_categories', DEFAULT_PORTFOLIO_CATEGORIES))
   const [services,     setServicesRaw]     = useState(() => load('fs_services',     DEFAULT_SERVICES))
   const [testimonials, setTestimonialsRaw] = useState(() => load('fs_testimonials', DEFAULT_TESTIMONIALS))
   const [inquiries,    setInquiriesRaw]    = useState(() => load('fs_inquiries',    []))
@@ -64,6 +76,7 @@ export function StudioProvider({ children }) {
   const [galleryItems, setGalleryItemsRaw] = useState(() => load('fs_gallery_v2',     DEFAULT_GALLERY_ITEMS))
 
   const setPortfolio    = v => { setPortfolioRaw(v);    save('fs_portfolio',    v) }
+  const setPortfolioCategories = v => { setPortfolioCategoriesRaw(v); save('fs_portfolio_categories', v) }
   const setServices     = v => { setServicesRaw(v);     save('fs_services',     v) }
   const setTestimonials = v => { setTestimonialsRaw(v); save('fs_testimonials', v) }
   const setInquiries    = v => { setInquiriesRaw(v);    save('fs_inquiries',    v) }
@@ -86,6 +99,7 @@ export function StudioProvider({ children }) {
   return (
     <StudioContext.Provider value={{
       portfolio, setPortfolio,
+      portfolioCategories, setPortfolioCategories,
       services, setServices,
       testimonials, setTestimonials,
       inquiries, setInquiries, addInquiry,
