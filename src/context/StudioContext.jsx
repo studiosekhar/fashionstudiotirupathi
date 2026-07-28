@@ -44,6 +44,15 @@ const DEFAULT_GALLERY_ITEMS = [
   { id: 10, url: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&h=600&fit=crop&auto=format', text: 'Studio' },
 ]
 
+const DEFAULT_ABOUT_DATA = {
+  name: "I'm Sekhar",
+  description: "Passionate photographer specializing in fashion, portraits, and weddings. With years of experience capturing life's precious moments, I bring creativity and professionalism to every shoot.",
+  weddingsShot: '500',
+  yearsExperience: '10',
+  happyMemories: '1000',
+  photo: null
+}
+
 function load(key, fallback) {
   try {
     const stored = localStorage.getItem(key)
@@ -62,6 +71,7 @@ export function StudioProvider({ children }) {
   const [inquiries,    setInquiriesRaw]    = useState(() => load('fs_inquiries',    []))
   const [heroPhotos,   setHeroPhotosRaw]   = useState(() => load('fs_hero_photos',  DEFAULT_HERO_PHOTOS))
   const [galleryItems, setGalleryItemsRaw] = useState(() => load('fs_gallery_v2',     DEFAULT_GALLERY_ITEMS))
+  const [aboutData,    setAboutDataRaw]    = useState(() => load('fs_about_data',   DEFAULT_ABOUT_DATA))
 
   const setPortfolio    = v => { setPortfolioRaw(v);    save('fs_portfolio',    v) }
   const setServices     = v => { setServicesRaw(v);     save('fs_services',     v) }
@@ -69,6 +79,7 @@ export function StudioProvider({ children }) {
   const setInquiries    = v => { setInquiriesRaw(v);    save('fs_inquiries',    v) }
   const setHeroPhotos   = v => { setHeroPhotosRaw(v);   save('fs_hero_photos',  v) }
   const setGalleryItems = v => { setGalleryItemsRaw(v); save('fs_gallery_v2',      v) }
+  const setAboutData    = v => { setAboutDataRaw(v);    save('fs_about_data',   v) }
 
   const addInquiry = (data) => {
     const newInquiry = {
@@ -91,6 +102,7 @@ export function StudioProvider({ children }) {
       inquiries, setInquiries, addInquiry,
       heroPhotos, setHeroPhotos,
       galleryItems, setGalleryItems,
+      aboutData, setAboutData,
     }}>
       {children}
     </StudioContext.Provider>

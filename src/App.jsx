@@ -9,7 +9,10 @@ import Testimonials from './components/Testimonials'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import SocialSwipe from './components/SocialSwipe'
+import StickyContactBar from './components/StickyContactBar'
 import AdminPage from './pages/AdminPage'
+import ContactPage from './pages/ContactPage'
+import AboutPage from './pages/AboutPage'
 import './App.css'
 
 function Home() {
@@ -25,6 +28,7 @@ function Home() {
       <Testimonials />
       <Contact />
       <Footer />
+      <StickyContactBar />
     </>
   )
 }
@@ -34,6 +38,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
       </Routes>
