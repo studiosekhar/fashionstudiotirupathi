@@ -33,6 +33,8 @@ const DEFAULT_ABOUT_DATA = {
   photo: null
 }
 
+const DEFAULT_YOUTUBE_VIDEOS = []
+
 const DEFAULT_PORTFOLIO = [
   { id: 1, title: 'Fashion Week 2026', category: 'Wedding', url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=600&fit=crop', tall: true },
   { id: 2, title: 'Romantic Wedding',  category: 'Wedding',   url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=600&fit=crop', wide: true },
@@ -91,6 +93,7 @@ export function StudioProvider({ children }) {
   const [portfolioCategories, setPortfolioCategoriesRaw] = useState(() => load('fs_portfolio_categories', DEFAULT_PORTFOLIO_CATEGORIES))
   const [categoryImages, setCategoryImagesRaw] = useState(() => load('fs_category_images', DEFAULT_CATEGORY_IMAGES))
   const [aboutData, setAboutDataRaw] = useState(() => load('fs_about_data', DEFAULT_ABOUT_DATA))
+  const [youtubeVideos, setYoutubeVideosRaw] = useState(() => load('fs_youtube_videos', DEFAULT_YOUTUBE_VIDEOS))
   const [services,     setServicesRaw]     = useState(() => load('fs_services',     DEFAULT_SERVICES))
   const [testimonials, setTestimonialsRaw] = useState(() => load('fs_testimonials', DEFAULT_TESTIMONIALS))
   const [inquiries,    setInquiriesRaw]    = useState(() => load('fs_inquiries',    []))
@@ -101,6 +104,7 @@ export function StudioProvider({ children }) {
   const setPortfolioCategories = v => { setPortfolioCategoriesRaw(v); save('fs_portfolio_categories', v) }
   const setCategoryImages = v => { setCategoryImagesRaw(v); save('fs_category_images', v) }
   const setAboutData = v => { setAboutDataRaw(v); save('fs_about_data', v) }
+  const setYoutubeVideos = v => { setYoutubeVideosRaw(v); save('fs_youtube_videos', v) }
   const setServices     = v => { setServicesRaw(v);     save('fs_services',     v) }
   const setTestimonials = v => { setTestimonialsRaw(v); save('fs_testimonials', v) }
   const setInquiries    = v => { setInquiriesRaw(v);    save('fs_inquiries',    v) }
@@ -126,6 +130,7 @@ export function StudioProvider({ children }) {
       portfolioCategories, setPortfolioCategories,
       categoryImages, setCategoryImages,
       aboutData, setAboutData,
+      youtubeVideos, setYoutubeVideos,
       services, setServices,
       testimonials, setTestimonials,
       inquiries, setInquiries, addInquiry,

@@ -20,6 +20,7 @@ export default function Navbar() {
           <ul className="nav-menu nav-left">
             <li><Link to="/portfolio">PORTFOLIO</Link></li>
             <li><Link to="/about" style={{color: '#d4af37'}}>ABOUT</Link></li>
+            <li><Link to="/youtube" style={{color: '#FF0000'}}>YOUTUBE</Link></li>
           </ul>
           <div className="logo">
             <img
@@ -49,6 +50,7 @@ export default function Navbar() {
         <div className="mobile-drawer-inner">
           <Link to="/portfolio" onClick={close}>Portfolio</Link>
           <Link to="/about" onClick={close}>About</Link>
+          <Link to="/youtube" onClick={close}>YouTube</Link>
           <a href="#services"  onClick={close}>Services</a>
           <Link to="/contact" onClick={close}>Contact</Link>
           <Link to="/admin" onClick={close} className="mobile-admin-btn">Admin</Link>

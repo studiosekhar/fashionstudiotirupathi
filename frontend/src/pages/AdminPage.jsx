@@ -62,6 +62,7 @@ export default function AdminPage() {
     { id: 'inquiries',    label: '📬 Inquiries' },
     { id: 'portfolio',    label: '📸 Portfolio' },
     { id: 'about',        label: '👤 About Us' },
+    { id: 'youtube',      label: '🎬 YouTube' },
     { id: 'hero',         label: '🖼️ Hero Photos' },
     { id: 'gallery',      label: '🎠 Gallery' },
     { id: 'services',     label: '✨ Services' },
@@ -72,6 +73,7 @@ export default function AdminPage() {
     inquiries:    'Contact Inquiries',
     portfolio:    'Portfolio Management',
     about:        'About Us Page',
+    youtube:      'YouTube Videos',
     hero:         'Hero Polaroid Photos',
     gallery:      'Circular Gallery',
     services:     'Services Management',
@@ -109,6 +111,7 @@ export default function AdminPage() {
           {activeTab === 'inquiries'    && <InquiriesPanel />}
           {activeTab === 'portfolio'    && <PortfolioPanel />}
           {activeTab === 'about'        && <AboutUsPanel />}
+          {activeTab === 'youtube'      && <YouTubePanel />}
           {activeTab === 'hero'         && <HeroPhotosPanel />}
           {activeTab === 'gallery'      && <GalleryPanel />}
           {activeTab === 'services'     && <ServicesPanel />}
@@ -1043,6 +1046,154 @@ function AboutUsPanel() {
             <button className="admin-edit-btn" onClick={handleEdit}>✏️ Edit Content</button>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+
+/* ─── YOUTUBE ─── */
+function YouTubePanel() {
+  const { youtubeVideos, setYoutubeVideos } = useStudio()
+  const [adding, setAdding] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [form, setForm] = useState({ embedUrl: '', title: '', description: '' })
+  const [confirmDelete, setConfirmDelete] = useState(null)
+
+  const openAdd = () => { setForm({ embedUrl: '', title: '', description: '' }); setEditing(null); setAdding(true) }
+  const openEdit = (video) => { setForm({ embedUrl: video.embedUrl, title: video.title, description: video.description }); setEditing(video.id); setAdding(true) }
+
+  const extractEmbedUrl = (input) => {
+    // If it's already an embed URL, return it
+    if (input.includes('/embed/')) return input
+    
+    // Extract video ID from various YouTube URL formats
+    let videoId = null
+    if (input.includes('youtu.be/')) {
+      videoId = input.split('youtu.be/')[1]?.split('?')[0]
+    } else if (input.includes('youtube.com/watch')) {
+      const url = new URL(input)
+      videoId = url.searchParams.get('v')
+    } else if (input.includes('youtube.com/embed/')) {
+      videoId = input.split('/embed/')[1]?.split('?')[0]
+    }
+    
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : input
+  }
+
+  const handleSave = (e) => {
+    e.preventDefault()
+    const embedUrl = extractEmbedUrl(form.embedUrl)
+    
+    if (editing) {
+      setYoutubeVideos(youtubeVideos.map(v => v.id === editing ? { ...v, ...form, embedUrl } : v))
+    } else {
+      setYoutubeVideos([...youtubeVideos, { id: Date.now(), ...form, embedUrl }])
+    }
+    setAdding(false); setEditing(null)
+  }
+
+  const handleDelete = (video) => {
+    setYoutubeVideos(youtubeVideos.filter(v => v.id !== video.id))
+    setConfirmDelete(null)
+  }
+
+  return (
+    <div className="admin-panel">
+      <div className="admin-panel-header">
+        <span>{youtubeVideos.length} YouTube videos</span>
+        <button className="admin-add-btn" onClick={openAdd}>+ Add Video</button>
+      </div>
+
+      <div className="admin-info-box">
+        <h4>📹 How to add YouTube videos:</h4>
+        <ol>
+          <li>Go to your YouTube video</li>
+          <li>Click "Share" → "Embed"</li>
+          <li>Copy the iframe src URL (e.g., https://www.youtube.com/embed/VIDEO_ID)</li>
+          <li>Or simply paste the regular YouTube video URL</li>
+        </ol>
+      </div>
+
+      {adding && (
+        <form className="admin-add-form" onSubmit={handleSave}>
+          <input 
+            placeholder="YouTube URL or Embed URL" 
+            value={form.embedUrl} 
+            onChange={e => setForm(p => ({ ...p, embedUrl: e.target.value }))} 
+            required 
+          />
+          <input 
+            placeholder="Title (e.g., Pravalika & Prasad | Pre-Wedding)" 
+            value={form.title} 
+            onChange={e => setForm(p => ({ ...p, title: e.target.value }))} 
+            required 
+          />
+          <textarea 
+            className="admin-textarea" 
+            placeholder="Description (optional)" 
+            value={form.description} 
+            onChange={e => setForm(p => ({ ...p, description: e.target.value }))} 
+            rows="3" 
+          />
+          {form.embedUrl && (
+            <div className="youtube-preview">
+              <p className="youtube-preview-label">Preview:</p>
+              <div className="youtube-preview-wrapper">
+                <iframe
+                  src={extractEmbedUrl(form.embedUrl)}
+                  title="YouTube preview"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="youtube-preview-iframe"
+                ></iframe>
+              </div>
+            </div>
+          )}
+          <div className="admin-form-actions">
+            <button type="submit" className="admin-save-btn">{editing ? 'Update' : 'Add'}</button>
+            <button type="button" className="admin-cancel-btn" onClick={() => { setAdding(false); setEditing(null) }}>Cancel</button>
+          </div>
+        </form>
+      )}
+
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Video?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.title}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="youtube-admin-grid">
+        {youtubeVideos.map(video => (
+          <div key={video.id} className="youtube-admin-card">
+            <div className="youtube-admin-thumbnail">
+              <iframe
+                src={video.embedUrl}
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="youtube-admin-iframe"
+              ></iframe>
+            </div>
+            <div className="youtube-admin-info">
+              <h4>{video.title}</h4>
+              {video.description && <p>{video.description}</p>}
+            </div>
+            <div className="admin-card-actions">
+              <button className="admin-edit-btn" onClick={() => openEdit(video)}>✏️</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(video)}>🗑</button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
