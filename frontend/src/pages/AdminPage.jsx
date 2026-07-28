@@ -61,6 +61,7 @@ export default function AdminPage() {
   const tabs = [
     { id: 'inquiries',    label: '📬 Inquiries' },
     { id: 'portfolio',    label: '📸 Portfolio' },
+    { id: 'about',        label: '👤 About Us' },
     { id: 'hero',         label: '🖼️ Hero Photos' },
     { id: 'gallery',      label: '🎠 Gallery' },
     { id: 'services',     label: '✨ Services' },
@@ -70,6 +71,7 @@ export default function AdminPage() {
   const titles = {
     inquiries:    'Contact Inquiries',
     portfolio:    'Portfolio Management',
+    about:        'About Us Page',
     hero:         'Hero Polaroid Photos',
     gallery:      'Circular Gallery',
     services:     'Services Management',
@@ -106,6 +108,7 @@ export default function AdminPage() {
         <div className="admin-content">
           {activeTab === 'inquiries'    && <InquiriesPanel />}
           {activeTab === 'portfolio'    && <PortfolioPanel />}
+          {activeTab === 'about'        && <AboutUsPanel />}
           {activeTab === 'hero'         && <HeroPhotosPanel />}
           {activeTab === 'gallery'      && <GalleryPanel />}
           {activeTab === 'services'     && <ServicesPanel />}
@@ -193,14 +196,20 @@ function InquiriesPanel() {
 
 /* ─── PORTFOLIO ─── */
 function PortfolioPanel() {
-  const { portfolio, setPortfolio } = useStudio()
+  const { portfolio, setPortfolio, portfolioCategories, setPortfolioCategories, categoryImages, setCategoryImages } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ title: '', category: '', url: '', publicId: '', tall: false, wide: false })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [addingCategory, setAddingCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false)
+  const [categoryImageUploadError, setCategoryImageUploadError] = useState('')
 
-  const openAdd = () => { setForm({ title: '', category: '', url: '', publicId: '', tall: false, wide: false }); setEditing(null); setAdding(true) }
+  const openAdd = () => { setForm({ title: '', category: selectedCategory === 'All' ? '' : selectedCategory, url: '', publicId: '', tall: false, wide: false }); setEditing(null); setAdding(true) }
   const openEdit = (item) => { setForm({ title: item.title, category: item.category, url: item.url, publicId: item.publicId ?? '', tall: !!item.tall, wide: !!item.wide }); setEditing(item.id); setAdding(true) }
 
   const handleFileUpload = async (e) => {
@@ -217,6 +226,41 @@ function PortfolioPanel() {
     setUploading(false)
   }
 
+  const handleCategoryImageUpload = async (e, category) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploadingCategoryImage(true)
+    setCategoryImageUploadError('')
+    try {
+      const { url, publicId } = await uploadToCloudinary(file)
+      
+      // Delete old category image if exists
+      if (categoryImages[category]?.publicId) {
+        await deleteFromCloudinary(categoryImages[category].publicId)
+      }
+      
+      setCategoryImages({
+        ...categoryImages,
+        [category]: { url, publicId }
+      })
+    } catch (err) {
+      setCategoryImageUploadError(err.message ?? 'Upload failed')
+    }
+    setUploadingCategoryImage(false)
+  }
+
+  const handleDeleteCategoryImage = async (category) => {
+    if (window.confirm(`Delete profile picture for "${category}"?`)) {
+      if (categoryImages[category]?.publicId) {
+        await deleteFromCloudinary(categoryImages[category].publicId)
+      }
+      setCategoryImages({
+        ...categoryImages,
+        [category]: null
+      })
+    }
+  }
+
   const handleSave = (e) => {
     e.preventDefault()
     if (editing) {
@@ -230,19 +274,138 @@ function PortfolioPanel() {
   const handleDelete = async (item) => {
     setPortfolio(portfolio.filter(p => p.id !== item.id))
     if (item.publicId) await deleteFromCloudinary(item.publicId)
+    setConfirmDelete(null)
   }
+
+  const handleAddCategory = () => {
+    if (newCategoryName.trim() && !portfolioCategories.includes(newCategoryName.trim())) {
+      const newCat = newCategoryName.trim()
+      setPortfolioCategories([...portfolioCategories, newCat])
+      // Initialize category image as null
+      setCategoryImages({
+        ...categoryImages,
+        [newCat]: null
+      })
+      setNewCategoryName('')
+      setAddingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = (cat) => {
+    if (cat === 'All') return
+    if (window.confirm(`Delete category "${cat}"? Photos in this category will not be deleted.`)) {
+      setPortfolioCategories(portfolioCategories.filter(c => c !== cat))
+      
+      // Delete category image if exists
+      if (categoryImages[cat]?.publicId) {
+        deleteFromCloudinary(categoryImages[cat].publicId)
+      }
+      
+      // Remove from categoryImages
+      const newCategoryImages = { ...categoryImages }
+      delete newCategoryImages[cat]
+      setCategoryImages(newCategoryImages)
+      
+      if (selectedCategory === cat) setSelectedCategory('All')
+    }
+  }
+
+  const filteredPortfolio = selectedCategory === 'All' 
+    ? portfolio 
+    : portfolio.filter(p => p.category === selectedCategory)
 
   return (
     <div className="admin-panel">
+      {/* Category Management */}
+      <div className="category-manager">
+        <div className="category-list">
+          {portfolioCategories.map(cat => (
+            <button
+              key={cat}
+              className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+              {cat !== 'All' && (
+                <span className="delete-cat" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat) }}>×</span>
+              )}
+            </button>
+          ))}
+        </div>
+        {addingCategory ? (
+          <div className="add-category-form">
+            <input
+              type="text"
+              placeholder="New category name"
+              value={newCategoryName}
+              onChange={e => setNewCategoryName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+              autoFocus
+            />
+            <button onClick={handleAddCategory} className="admin-save-btn-sm">Add</button>
+            <button onClick={() => { setAddingCategory(false); setNewCategoryName('') }} className="admin-cancel-btn-sm">Cancel</button>
+          </div>
+        ) : (
+          <button className="admin-add-category-btn" onClick={() => setAddingCategory(true)}>+ Add Category</button>
+        )}
+      </div>
+
+      {/* Category Profile Picture Upload */}
+      {selectedCategory !== 'All' && (
+        <div className="category-image-upload-section">
+          <h3 className="category-image-title">Category Profile Picture - {selectedCategory}</h3>
+          <p className="category-image-hint">Upload a profile picture for this category. This will appear in the circular button on the portfolio page.</p>
+          
+          <div className="category-image-container">
+            {categoryImages[selectedCategory]?.url ? (
+              <div className="category-image-preview">
+                <img src={categoryImages[selectedCategory].url} alt={selectedCategory} />
+                <button 
+                  className="category-image-delete-btn" 
+                  onClick={() => handleDeleteCategoryImage(selectedCategory)}
+                  title="Delete profile picture"
+                >
+                  🗑
+                </button>
+              </div>
+            ) : (
+              <div className="category-image-placeholder">
+                <span>{selectedCategory.charAt(0)}</span>
+              </div>
+            )}
+            
+            <div className="category-image-upload-controls">
+              <label className="category-image-upload-label">
+                <span>📁 {categoryImages[selectedCategory]?.url ? 'Change' : 'Upload'} Profile Picture</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => handleCategoryImageUpload(e, selectedCategory)} 
+                  style={{ display: 'none' }} 
+                  disabled={uploadingCategoryImage}
+                />
+              </label>
+              {uploadingCategoryImage && <p className="upload-status">Uploading...</p>}
+              {categoryImageUploadError && <p className="upload-error">{categoryImageUploadError}</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-panel-header">
-        <span>{portfolio.length} items</span>
-        <button className="admin-add-btn" onClick={openAdd}>+ Add Item</button>
+        <span>{filteredPortfolio.length} items {selectedCategory !== 'All' ? `in ${selectedCategory}` : 'total'}</span>
+        <button className="admin-add-btn" onClick={openAdd}>+ Add Photo</button>
       </div>
 
       {adding && (
         <form className="admin-add-form" onSubmit={handleSave}>
-          <input placeholder="Title" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} required />
-          <input placeholder="Category (e.g. Wedding)" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} required />
+          <input placeholder="Title (optional)" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
+          <select className="admin-select" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} required>
+            <option value="">Select Category</option>
+            {portfolioCategories.filter(c => c !== 'All').map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
           <div className="upload-section">
             <label className="upload-label">
               <span>📁 Upload from device</span>
@@ -274,19 +437,32 @@ function PortfolioPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Photo?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.title || 'this photo'}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-grid">
-        {portfolio.map(item => (
+        {filteredPortfolio.map(item => (
           <div key={item.id} className="admin-card">
             <img src={item.url} alt={item.title} onError={e => { e.target.src = 'https://via.placeholder.com/300x200?text=No+Image' }} />
             <div className="admin-card-info">
-              <h4>{item.title}</h4>
+              <h4>{item.title || 'Untitled'}</h4>
               <span className="admin-badge">{item.category}</span>
               {item.tall && <span className="admin-badge admin-badge--spaced">Tall</span>}
               {item.wide && <span className="admin-badge admin-badge--spaced">Wide</span>}
             </div>
             <div className="admin-card-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(item)}>✏️</button>
-              <button className="admin-delete-btn" onClick={() => handleDelete(item)}>🗑</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(item)}>🗑</button>
             </div>
           </div>
         ))}
@@ -301,6 +477,7 @@ function ServicesPanel() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ icon: '', title: '', description: '' })
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const openAdd = () => { setForm({ icon: '', title: '', description: '' }); setEditing(null); setAdding(true) }
   const openEdit = (s) => { setForm({ icon: s.icon, title: s.title, description: s.description }); setEditing(s.id); setAdding(true) }
@@ -313,6 +490,11 @@ function ServicesPanel() {
       setServices([...services, { id: Date.now(), ...form }])
     }
     setAdding(false); setEditing(null)
+  }
+
+  const handleDelete = (item) => {
+    setServices(services.filter(s => s.id !== item.id))
+    setConfirmDelete(null)
   }
 
   return (
@@ -334,6 +516,19 @@ function ServicesPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Service?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.title}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-list">
         {services.map(s => (
           <div key={s.id} className="admin-list-item">
@@ -344,7 +539,7 @@ function ServicesPanel() {
             </div>
             <div className="admin-list-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(s)}>✏️</button>
-              <button className="admin-delete-btn-inline" onClick={() => setServices(services.filter(x => x.id !== s.id))}>🗑</button>
+              <button className="admin-delete-btn-inline" onClick={() => setConfirmDelete(s)}>🗑</button>
             </div>
           </div>
         ))}
@@ -359,6 +554,7 @@ function TestimonialsPanel() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ author: '', role: '', text: '' })
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const openAdd = () => { setForm({ author: '', role: '', text: '' }); setEditing(null); setAdding(true) }
   const openEdit = (t) => { setForm({ author: t.author, role: t.role, text: t.text }); setEditing(t.id); setAdding(true) }
@@ -371,6 +567,11 @@ function TestimonialsPanel() {
       setTestimonials([...testimonials, { id: Date.now(), ...form }])
     }
     setAdding(false); setEditing(null)
+  }
+
+  const handleDelete = (item) => {
+    setTestimonials(testimonials.filter(t => t.id !== item.id))
+    setConfirmDelete(null)
   }
 
   return (
@@ -392,6 +593,19 @@ function TestimonialsPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Testimonial?</h3>
+            <p>Are you sure you want to delete the testimonial from "{confirmDelete.author}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-list">
         {testimonials.map(t => (
           <div key={t.id} className="admin-list-item">
@@ -401,7 +615,7 @@ function TestimonialsPanel() {
             </div>
             <div className="admin-list-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(t)}>✏️</button>
-              <button className="admin-delete-btn-inline" onClick={() => setTestimonials(testimonials.filter(x => x.id !== t.id))}>🗑</button>
+              <button className="admin-delete-btn-inline" onClick={() => setConfirmDelete(t)}>🗑</button>
             </div>
           </div>
         ))}
@@ -418,6 +632,7 @@ function HeroPhotosPanel() {
   const [form, setForm] = useState({ url: '', publicId: '', alt: '', rotate: '0deg' })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const ROTATIONS = ['0deg', '3deg', '-4deg', '2deg', '-3deg', '4deg', '-2deg', '5deg', '-5deg']
 
@@ -451,6 +666,7 @@ function HeroPhotosPanel() {
   const handleDelete = async (photo) => {
     setHeroPhotos(heroPhotos.filter(p => p.id !== photo.id))
     if (photo.publicId) await deleteFromCloudinary(photo.publicId)
+    setConfirmDelete(null)
   }
 
   return (
@@ -475,7 +691,7 @@ function HeroPhotosPanel() {
               className="url-input"
             />
           </div>
-          <input placeholder="Alt text (e.g. Fashion Photo)" value={form.alt} onChange={e => setForm(p => ({ ...p, alt: e.target.value }))} required />
+          <input placeholder="Alt text (optional)" value={form.alt} onChange={e => setForm(p => ({ ...p, alt: e.target.value }))} />
           <select className="admin-select" value={form.rotate} onChange={e => setForm(p => ({ ...p, rotate: e.target.value }))}>
             {ROTATIONS.map(r => <option key={r} value={r}>{r} rotation</option>)}
           </select>
@@ -493,6 +709,19 @@ function HeroPhotosPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Photo?</h3>
+            <p>Are you sure you want to delete this hero photo?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-grid">
         {heroPhotos.map(photo => (
           <div key={photo.id} className="admin-card">
@@ -500,12 +729,12 @@ function HeroPhotosPanel() {
               <img src={photo.url} alt={photo.alt} onError={e => { e.target.src = 'https://via.placeholder.com/200?text=No+Image' }} />
             </div>
             <div className="admin-card-info">
-              <h4>{photo.alt}</h4>
+              <h4>{photo.alt || 'Untitled'}</h4>
               <span className="admin-badge">{photo.rotate}</span>
             </div>
             <div className="admin-card-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(photo)}>✏️</button>
-              <button className="admin-delete-btn" onClick={() => handleDelete(photo)}>🗑</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(photo)}>🗑</button>
             </div>
           </div>
         ))}
@@ -522,6 +751,7 @@ function GalleryPanel() {
   const [form, setForm] = useState({ url: '', publicId: '', text: '' })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const openAdd = () => { setForm({ url: '', publicId: '', text: '' }); setEditing(null); setAdding(true) }
   const openEdit = (g) => { setForm({ url: g.url, publicId: g.publicId ?? '', text: g.text }); setEditing(g.id); setAdding(true) }
@@ -553,6 +783,7 @@ function GalleryPanel() {
   const handleDelete = async (item) => {
     setGalleryItems(galleryItems.filter(g => g.id !== item.id))
     if (item.publicId) await deleteFromCloudinary(item.publicId)
+    setConfirmDelete(null)
   }
 
   return (
@@ -577,7 +808,7 @@ function GalleryPanel() {
               className="url-input"
             />
           </div>
-          <input placeholder="Label (e.g. Bridal Session)" value={form.text} onChange={e => setForm(p => ({ ...p, text: e.target.value }))} required />
+          <input placeholder="Label (optional)" value={form.text} onChange={e => setForm(p => ({ ...p, text: e.target.value }))} />
           {form.url && (
             <div className="upload-preview">
               <img src={form.url} alt="preview" onError={e => e.target.style.display='none'} />
@@ -592,19 +823,226 @@ function GalleryPanel() {
         </form>
       )}
 
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Gallery Photo?</h3>
+            <p>Are you sure you want to delete "{confirmDelete.text || 'this photo'}"?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-grid">
         {galleryItems.map(item => (
           <div key={item.id} className="admin-card">
             <img src={item.url} alt={item.text} onError={e => { e.target.src = 'https://via.placeholder.com/300x200?text=No+Image' }} />
             <div className="admin-card-info">
-              <h4>{item.text}</h4>
+              <h4>{item.text || 'Untitled'}</h4>
             </div>
             <div className="admin-card-actions">
               <button className="admin-edit-btn" onClick={() => openEdit(item)}>✏️</button>
-              <button className="admin-delete-btn" onClick={() => handleDelete(item)}>🗑</button>
+              <button className="admin-delete-btn" onClick={() => setConfirmDelete(item)}>🗑</button>
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+/* ─── ABOUT US ─── */
+function AboutUsPanel() {
+  const { aboutData, setAboutData } = useStudio()
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({
+    name: aboutData?.name || "I'm Sekhar",
+    description: aboutData?.description || '',
+    weddingsShot: aboutData?.weddingsShot || '500',
+    yearsExperience: aboutData?.yearsExperience || '25',
+    happyMemories: aboutData?.happyMemories || '300k',
+  })
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    
+    setUploading(true)
+    setUploadError('')
+    try {
+      const { url, publicId } = await uploadToCloudinary(file)
+      
+      // Delete old photo if exists
+      if (aboutData?.photo?.publicId) {
+        await deleteFromCloudinary(aboutData.photo.publicId)
+      }
+      
+      setAboutData({
+        ...aboutData,
+        photo: { url, publicId }
+      })
+    } catch (err) {
+      setUploadError(err.message ?? 'Upload failed')
+    }
+    setUploading(false)
+  }
+
+  const handleDeletePhoto = async () => {
+    if (window.confirm('Delete about page photo?')) {
+      if (aboutData?.photo?.publicId) {
+        await deleteFromCloudinary(aboutData.photo.publicId)
+      }
+      setAboutData({
+        ...aboutData,
+        photo: null
+      })
+    }
+  }
+
+  const handleSave = (e) => {
+    e.preventDefault()
+    setAboutData({
+      ...aboutData,
+      ...form
+    })
+    setEditing(false)
+  }
+
+  const handleEdit = () => {
+    setForm({
+      name: aboutData?.name || "I'm Sekhar",
+      description: aboutData?.description || '',
+      weddingsShot: aboutData?.weddingsShot || '500',
+      yearsExperience: aboutData?.yearsExperience || '25',
+      happyMemories: aboutData?.happyMemories || '300k',
+    })
+    setEditing(true)
+  }
+
+  return (
+    <div className="admin-panel">
+      <div className="admin-panel-header">
+        <span>About Us Page Content</span>
+        <span className="admin-hint">This content appears on /about page</span>
+      </div>
+
+      {/* Photo Upload Section */}
+      <div className="about-photo-section">
+        <h3 className="section-heading">Profile Photo (Only 1 photo allowed)</h3>
+        <div className="about-photo-container">
+          {aboutData?.photo?.url ? (
+            <div className="about-photo-preview">
+              <img src={aboutData.photo.url} alt="About" />
+              <button 
+                className="about-photo-delete-btn" 
+                onClick={handleDeletePhoto}
+                title="Delete photo"
+              >
+                🗑
+              </button>
+            </div>
+          ) : (
+            <div className="about-photo-placeholder">
+              <span>📷</span>
+              <p>No photo uploaded</p>
+            </div>
+          )}
+          
+          <div className="about-photo-upload-controls">
+            <label className="about-photo-upload-label">
+              <span>📁 {aboutData?.photo?.url ? 'Change' : 'Upload'} Photo</span>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handlePhotoUpload} 
+                style={{ display: 'none' }} 
+                disabled={uploading}
+              />
+            </label>
+            {uploading && <p className="upload-status">Uploading...</p>}
+            {uploadError && <p className="upload-error">{uploadError}</p>}
+            <p className="upload-hint">Recommended: Portrait orientation, 800x1000px or larger</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Text Content Section */}
+      <div className="about-text-section">
+        <h3 className="section-heading">About Content</h3>
+        
+        {editing ? (
+          <form className="admin-add-form" onSubmit={handleSave}>
+            <input 
+              placeholder="Name (e.g., I'm Sekhar)" 
+              value={form.name} 
+              onChange={e => setForm(p => ({ ...p, name: e.target.value }))} 
+              required 
+            />
+            <textarea 
+              className="admin-textarea" 
+              placeholder="Description / Bio" 
+              value={form.description} 
+              onChange={e => setForm(p => ({ ...p, description: e.target.value }))} 
+              rows="6" 
+              required 
+            />
+            <div className="stats-form-grid">
+              <input 
+                placeholder="Weddings Shot (e.g., 500)" 
+                value={form.weddingsShot} 
+                onChange={e => setForm(p => ({ ...p, weddingsShot: e.target.value }))} 
+                required 
+              />
+              <input 
+                placeholder="Years Experience (e.g., 25)" 
+                value={form.yearsExperience} 
+                onChange={e => setForm(p => ({ ...p, yearsExperience: e.target.value }))} 
+                required 
+              />
+              <input 
+                placeholder="Happy Memories (e.g., 300k)" 
+                value={form.happyMemories} 
+                onChange={e => setForm(p => ({ ...p, happyMemories: e.target.value }))} 
+                required 
+              />
+            </div>
+            <div className="admin-form-actions">
+              <button type="submit" className="admin-save-btn">Save Changes</button>
+              <button type="button" className="admin-cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+            </div>
+          </form>
+        ) : (
+          <div className="about-content-display">
+            <div className="about-display-item">
+              <label>Name:</label>
+              <p>{aboutData?.name || "I'm Sekhar"}</p>
+            </div>
+            <div className="about-display-item">
+              <label>Description:</label>
+              <p>{aboutData?.description || 'No description added yet'}</p>
+            </div>
+            <div className="about-stats-display">
+              <div className="stat-display">
+                <strong>{aboutData?.weddingsShot || '500'}+</strong>
+                <span>Weddings Shot</span>
+              </div>
+              <div className="stat-display">
+                <strong>{aboutData?.yearsExperience || '25'}+</strong>
+                <span>Years Experience</span>
+              </div>
+              <div className="stat-display">
+                <strong>{aboutData?.happyMemories || '300k'}+</strong>
+                <span>Happy Memories</span>
+              </div>
+            </div>
+            <button className="admin-edit-btn" onClick={handleEdit}>✏️ Edit Content</button>
+          </div>
+        )}
       </div>
     </div>
   )

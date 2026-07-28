@@ -63,7 +63,7 @@ export default function handler(req, res) {
     signature,
     timestamp,
     uploadPreset,
-    apiKey: process.env.VITE_CLOUDINARY_API_KEY ?? '',
-    cloudName: process.env.VITE_CLOUDINARY_CLOUD_NAME ?? '',
+    apiKey: process.env.VITE_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY || '',
+    cloudName: process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || '',
   })
 }

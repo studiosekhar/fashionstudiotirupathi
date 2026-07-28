@@ -39,9 +39,9 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Forbidden: can only delete images in the fashion-studio folder' })
   }
 
-  const apiKey = process.env.VITE_CLOUDINARY_API_KEY
+  const apiKey = process.env.VITE_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY
   const apiSecret = process.env.CLOUDINARY_API_SECRET
-  const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME
+  const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME
 
   if (!apiKey || !apiSecret || !cloudName) {
     return res.status(500).json({ error: 'Server misconfiguration: missing Cloudinary credentials' })

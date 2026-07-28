@@ -868,3 +868,509 @@
   color: #ff6b6b;
   margin: 0;
 }
+
+/* ===== CATEGORY MANAGER ===== */
+.category-manager {
+  background: rgba(255,255,255,0.04);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.category-btn {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.8);
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(212,175,55,0.4);
+}
+
+.category-btn.active {
+  background: rgba(212,175,55,0.2);
+  border-color: rgba(212,175,55,0.6);
+  color: rgb(212,175,55);
+}
+
+.category-btn .delete-cat {
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.category-btn .delete-cat:hover {
+  opacity: 1;
+  color: #ff5f56;
+}
+
+.add-category-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.add-category-form input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.add-category-form input:focus {
+  outline: none;
+  border-color: rgba(212,175,55,0.6);
+}
+
+.admin-add-category-btn {
+  padding: 8px 16px;
+  background: rgba(212,175,55,0.15);
+  border: 1px dashed rgba(212,175,55,0.4);
+  border-radius: 20px;
+  color: rgb(212,175,55);
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-add-category-btn:hover {
+  background: rgba(212,175,55,0.25);
+  border-color: rgba(212,175,55,0.6);
+}
+
+.admin-save-btn-sm,
+.admin-cancel-btn-sm {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-save-btn-sm {
+  background: linear-gradient(135deg, #27c93f, #00c620);
+  border: none;
+  color: #fff;
+}
+
+.admin-cancel-btn-sm {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
+}
+
+/* ===== CONFIRM DIALOG ===== */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.confirm-dialog {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.confirm-dialog h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.confirm-dialog p {
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirm-dialog-actions button {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* ===== CATEGORY IMAGE UPLOAD SECTION ===== */
+.category-image-upload-section {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.category-image-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.category-image-hint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.category-image-container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.category-image-preview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(212,175,55,0.6);
+  box-shadow: 0 8px 24px rgba(212,175,55,0.3);
+}
+
+.category-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-image-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,95,86,0.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.category-image-preview:hover .category-image-delete-btn {
+  opacity: 1;
+}
+
+.category-image-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 3px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+}
+
+.category-image-upload-controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-image-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(212,175,55,0.15);
+  border: 1px dashed rgba(212,175,55,0.5);
+  border-radius: 8px;
+  color: rgba(212,175,55,0.9);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.category-image-upload-label:hover {
+  background: rgba(212,175,55,0.25);
+  border-color: rgba(212,175,55,0.8);
+  transform: translateY(-2px);
+}
+
+.category-image-upload-label:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .category-image-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .category-image-preview,
+  .category-image-placeholder {
+    width: 100px;
+    height: 100px;
+  }
+
+  .category-image-placeholder {
+    font-size: 40px;
+  }
+}
+
+/* ===== ABOUT US ADMIN SECTION ===== */
+.about-photo-section,
+.about-text-section {
+  padding: 24px;
+  margin-bottom: 20px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+}
+
+.section-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.about-photo-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.about-photo-preview {
+  position: relative;
+  width: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.about-photo-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.about-photo-delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,95,86,0.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.about-photo-preview:hover .about-photo-delete-btn {
+  opacity: 1;
+}
+
+.about-photo-placeholder {
+  width: 280px;
+  aspect-ratio: 3/4;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+  border: 2px dashed rgba(255,255,255,0.2);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: rgba(255,255,255,0.3);
+}
+
+.about-photo-placeholder p {
+  font-size: 14px;
+  margin-top: 12px;
+  color: rgba(255,255,255,0.4);
+}
+
+.about-photo-upload-controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-photo-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: rgba(212,175,55,0.15);
+  border: 1px dashed rgba(212,175,55,0.5);
+  border-radius: 8px;
+  color: rgba(212,175,55,0.9);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.about-photo-upload-label:hover {
+  background: rgba(212,175,55,0.25);
+  border-color: rgba(212,175,55,0.8);
+  transform: translateY(-2px);
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+}
+
+.about-content-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.about-display-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.about-display-item label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+
+.about-display-item p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.8);
+}
+
+.about-stats-display {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.stat-display {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-display strong {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  color: rgba(212,175,55,0.9);
+  font-weight: 600;
+}
+
+.stat-display span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.5);
+}
+
+.stats-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 968px) {
+  .about-photo-container {
+    flex-direction: column;
+  }
+
+  .about-stats-display,
+  .stats-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
