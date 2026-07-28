@@ -24,6 +24,15 @@ const DEFAULT_CATEGORY_IMAGES = {
   'Newborn': null,
 }
 
+const DEFAULT_ABOUT_DATA = {
+  name: "I'm Sekhar",
+  description: "I'm a candid wedding and portrait photographer based in Tirupati. I love capturing raw emotions, genuine smiles, quiet in-between moments, and the beautiful chaos that makes every story unique. From dreamy pre-wedding shoots and timeless wedding celebrations to newborn memories, maternity sessions, birthdays, couple shoots, and milestone moments — I believe every chapter of life deserves to be preserved with warmth, emotion, and elegance.",
+  weddingsShot: '500',
+  yearsExperience: '25',
+  happyMemories: '300k',
+  photo: null
+}
+
 const DEFAULT_PORTFOLIO = [
   { id: 1, title: 'Fashion Week 2026', category: 'Wedding', url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=600&fit=crop', tall: true },
   { id: 2, title: 'Romantic Wedding',  category: 'Wedding',   url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=600&fit=crop', wide: true },
@@ -81,6 +90,7 @@ export function StudioProvider({ children }) {
   const [portfolio,    setPortfolioRaw]    = useState(() => load('fs_portfolio',    DEFAULT_PORTFOLIO))
   const [portfolioCategories, setPortfolioCategoriesRaw] = useState(() => load('fs_portfolio_categories', DEFAULT_PORTFOLIO_CATEGORIES))
   const [categoryImages, setCategoryImagesRaw] = useState(() => load('fs_category_images', DEFAULT_CATEGORY_IMAGES))
+  const [aboutData, setAboutDataRaw] = useState(() => load('fs_about_data', DEFAULT_ABOUT_DATA))
   const [services,     setServicesRaw]     = useState(() => load('fs_services',     DEFAULT_SERVICES))
   const [testimonials, setTestimonialsRaw] = useState(() => load('fs_testimonials', DEFAULT_TESTIMONIALS))
   const [inquiries,    setInquiriesRaw]    = useState(() => load('fs_inquiries',    []))
@@ -90,6 +100,7 @@ export function StudioProvider({ children }) {
   const setPortfolio    = v => { setPortfolioRaw(v);    save('fs_portfolio',    v) }
   const setPortfolioCategories = v => { setPortfolioCategoriesRaw(v); save('fs_portfolio_categories', v) }
   const setCategoryImages = v => { setCategoryImagesRaw(v); save('fs_category_images', v) }
+  const setAboutData = v => { setAboutDataRaw(v); save('fs_about_data', v) }
   const setServices     = v => { setServicesRaw(v);     save('fs_services',     v) }
   const setTestimonials = v => { setTestimonialsRaw(v); save('fs_testimonials', v) }
   const setInquiries    = v => { setInquiriesRaw(v);    save('fs_inquiries',    v) }
@@ -114,6 +125,7 @@ export function StudioProvider({ children }) {
       portfolio, setPortfolio,
       portfolioCategories, setPortfolioCategories,
       categoryImages, setCategoryImages,
+      aboutData, setAboutData,
       services, setServices,
       testimonials, setTestimonials,
       inquiries, setInquiries, addInquiry,

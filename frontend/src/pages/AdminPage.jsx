@@ -61,6 +61,7 @@ export default function AdminPage() {
   const tabs = [
     { id: 'inquiries',    label: '📬 Inquiries' },
     { id: 'portfolio',    label: '📸 Portfolio' },
+    { id: 'about',        label: '👤 About Us' },
     { id: 'hero',         label: '🖼️ Hero Photos' },
     { id: 'gallery',      label: '🎠 Gallery' },
     { id: 'services',     label: '✨ Services' },
@@ -70,6 +71,7 @@ export default function AdminPage() {
   const titles = {
     inquiries:    'Contact Inquiries',
     portfolio:    'Portfolio Management',
+    about:        'About Us Page',
     hero:         'Hero Polaroid Photos',
     gallery:      'Circular Gallery',
     services:     'Services Management',
@@ -106,6 +108,7 @@ export default function AdminPage() {
         <div className="admin-content">
           {activeTab === 'inquiries'    && <InquiriesPanel />}
           {activeTab === 'portfolio'    && <PortfolioPanel />}
+          {activeTab === 'about'        && <AboutUsPanel />}
           {activeTab === 'hero'         && <HeroPhotosPanel />}
           {activeTab === 'gallery'      && <GalleryPanel />}
           {activeTab === 'services'     && <ServicesPanel />}
@@ -846,6 +849,200 @@ function GalleryPanel() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+/* ─── ABOUT US ─── */
+function AboutUsPanel() {
+  const { aboutData, setAboutData } = useStudio()
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({
+    name: aboutData?.name || "I'm Sekhar",
+    description: aboutData?.description || '',
+    weddingsShot: aboutData?.weddingsShot || '500',
+    yearsExperience: aboutData?.yearsExperience || '25',
+    happyMemories: aboutData?.happyMemories || '300k',
+  })
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    
+    setUploading(true)
+    setUploadError('')
+    try {
+      const { url, publicId } = await uploadToCloudinary(file)
+      
+      // Delete old photo if exists
+      if (aboutData?.photo?.publicId) {
+        await deleteFromCloudinary(aboutData.photo.publicId)
+      }
+      
+      setAboutData({
+        ...aboutData,
+        photo: { url, publicId }
+      })
+    } catch (err) {
+      setUploadError(err.message ?? 'Upload failed')
+    }
+    setUploading(false)
+  }
+
+  const handleDeletePhoto = async () => {
+    if (window.confirm('Delete about page photo?')) {
+      if (aboutData?.photo?.publicId) {
+        await deleteFromCloudinary(aboutData.photo.publicId)
+      }
+      setAboutData({
+        ...aboutData,
+        photo: null
+      })
+    }
+  }
+
+  const handleSave = (e) => {
+    e.preventDefault()
+    setAboutData({
+      ...aboutData,
+      ...form
+    })
+    setEditing(false)
+  }
+
+  const handleEdit = () => {
+    setForm({
+      name: aboutData?.name || "I'm Sekhar",
+      description: aboutData?.description || '',
+      weddingsShot: aboutData?.weddingsShot || '500',
+      yearsExperience: aboutData?.yearsExperience || '25',
+      happyMemories: aboutData?.happyMemories || '300k',
+    })
+    setEditing(true)
+  }
+
+  return (
+    <div className="admin-panel">
+      <div className="admin-panel-header">
+        <span>About Us Page Content</span>
+        <span className="admin-hint">This content appears on /about page</span>
+      </div>
+
+      {/* Photo Upload Section */}
+      <div className="about-photo-section">
+        <h3 className="section-heading">Profile Photo (Only 1 photo allowed)</h3>
+        <div className="about-photo-container">
+          {aboutData?.photo?.url ? (
+            <div className="about-photo-preview">
+              <img src={aboutData.photo.url} alt="About" />
+              <button 
+                className="about-photo-delete-btn" 
+                onClick={handleDeletePhoto}
+                title="Delete photo"
+              >
+                🗑
+              </button>
+            </div>
+          ) : (
+            <div className="about-photo-placeholder">
+              <span>📷</span>
+              <p>No photo uploaded</p>
+            </div>
+          )}
+          
+          <div className="about-photo-upload-controls">
+            <label className="about-photo-upload-label">
+              <span>📁 {aboutData?.photo?.url ? 'Change' : 'Upload'} Photo</span>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handlePhotoUpload} 
+                style={{ display: 'none' }} 
+                disabled={uploading}
+              />
+            </label>
+            {uploading && <p className="upload-status">Uploading...</p>}
+            {uploadError && <p className="upload-error">{uploadError}</p>}
+            <p className="upload-hint">Recommended: Portrait orientation, 800x1000px or larger</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Text Content Section */}
+      <div className="about-text-section">
+        <h3 className="section-heading">About Content</h3>
+        
+        {editing ? (
+          <form className="admin-add-form" onSubmit={handleSave}>
+            <input 
+              placeholder="Name (e.g., I'm Sekhar)" 
+              value={form.name} 
+              onChange={e => setForm(p => ({ ...p, name: e.target.value }))} 
+              required 
+            />
+            <textarea 
+              className="admin-textarea" 
+              placeholder="Description / Bio" 
+              value={form.description} 
+              onChange={e => setForm(p => ({ ...p, description: e.target.value }))} 
+              rows="6" 
+              required 
+            />
+            <div className="stats-form-grid">
+              <input 
+                placeholder="Weddings Shot (e.g., 500)" 
+                value={form.weddingsShot} 
+                onChange={e => setForm(p => ({ ...p, weddingsShot: e.target.value }))} 
+                required 
+              />
+              <input 
+                placeholder="Years Experience (e.g., 25)" 
+                value={form.yearsExperience} 
+                onChange={e => setForm(p => ({ ...p, yearsExperience: e.target.value }))} 
+                required 
+              />
+              <input 
+                placeholder="Happy Memories (e.g., 300k)" 
+                value={form.happyMemories} 
+                onChange={e => setForm(p => ({ ...p, happyMemories: e.target.value }))} 
+                required 
+              />
+            </div>
+            <div className="admin-form-actions">
+              <button type="submit" className="admin-save-btn">Save Changes</button>
+              <button type="button" className="admin-cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+            </div>
+          </form>
+        ) : (
+          <div className="about-content-display">
+            <div className="about-display-item">
+              <label>Name:</label>
+              <p>{aboutData?.name || "I'm Sekhar"}</p>
+            </div>
+            <div className="about-display-item">
+              <label>Description:</label>
+              <p>{aboutData?.description || 'No description added yet'}</p>
+            </div>
+            <div className="about-stats-display">
+              <div className="stat-display">
+                <strong>{aboutData?.weddingsShot || '500'}+</strong>
+                <span>Weddings Shot</span>
+              </div>
+              <div className="stat-display">
+                <strong>{aboutData?.yearsExperience || '25'}+</strong>
+                <span>Years Experience</span>
+              </div>
+              <div className="stat-display">
+                <strong>{aboutData?.happyMemories || '300k'}+</strong>
+                <span>Happy Memories</span>
+              </div>
+            </div>
+            <button className="admin-edit-btn" onClick={handleEdit}>✏️ Edit Content</button>
+          </div>
+        )}
       </div>
     </div>
   )
