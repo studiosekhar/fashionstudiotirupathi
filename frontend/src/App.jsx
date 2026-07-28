@@ -14,6 +14,8 @@ import PortfolioPage from './pages/PortfolioPage'
 import AboutPage from './pages/AboutPage'
 import './App.css'
 
+// Fashion Studio - Updated with About Page
+
 function Home() {
   return (
     <>
