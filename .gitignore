@@ -12,6 +12,7 @@ frontend/dist
 .env.local
 frontend/.env
 backend/.env
+api/.env
 
 # System files
 .DS_Store
@@ -23,3 +24,6 @@ npm-debug.log*
 # Editor directories
 .vscode
 .idea
+
+# Vercel
+.vercel

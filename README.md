@@ -11,9 +11,12 @@ fashion-studio/
 │   ├── public/       # Static assets
 │   └── package.json  # Frontend dependencies
 │
-├── backend/          # Node.js + Express backend
-│   ├── api/         # API routes
-│   └── package.json # Backend dependencies
+├── api/              # Serverless API functions
+│   ├── sign-upload.js    # Cloudinary upload signature
+│   └── delete-image.js   # Cloudinary image deletion
+│
+├── backend/          # Backend utilities (dev-server for local testing)
+│   └── dev-server.js # Local development server
 │
 └── package.json     # Root package.json with helper scripts
 ```
