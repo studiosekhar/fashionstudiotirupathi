@@ -193,7 +193,7 @@ function InquiriesPanel() {
 
 /* ─── PORTFOLIO ─── */
 function PortfolioPanel() {
-  const { portfolio, setPortfolio, portfolioCategories, setPortfolioCategories } = useStudio()
+  const { portfolio, setPortfolio, portfolioCategories, setPortfolioCategories, categoryImages, setCategoryImages } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ title: '', category: '', url: '', publicId: '', tall: false, wide: false })
@@ -203,6 +203,8 @@ function PortfolioPanel() {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false)
+  const [categoryImageUploadError, setCategoryImageUploadError] = useState('')
 
   const openAdd = () => { setForm({ title: '', category: selectedCategory === 'All' ? '' : selectedCategory, url: '', publicId: '', tall: false, wide: false }); setEditing(null); setAdding(true) }
   const openEdit = (item) => { setForm({ title: item.title, category: item.category, url: item.url, publicId: item.publicId ?? '', tall: !!item.tall, wide: !!item.wide }); setEditing(item.id); setAdding(true) }
@@ -219,6 +221,41 @@ function PortfolioPanel() {
       setUploadError(err.message ?? 'Upload failed')
     }
     setUploading(false)
+  }
+
+  const handleCategoryImageUpload = async (e, category) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploadingCategoryImage(true)
+    setCategoryImageUploadError('')
+    try {
+      const { url, publicId } = await uploadToCloudinary(file)
+      
+      // Delete old category image if exists
+      if (categoryImages[category]?.publicId) {
+        await deleteFromCloudinary(categoryImages[category].publicId)
+      }
+      
+      setCategoryImages({
+        ...categoryImages,
+        [category]: { url, publicId }
+      })
+    } catch (err) {
+      setCategoryImageUploadError(err.message ?? 'Upload failed')
+    }
+    setUploadingCategoryImage(false)
+  }
+
+  const handleDeleteCategoryImage = async (category) => {
+    if (window.confirm(`Delete profile picture for "${category}"?`)) {
+      if (categoryImages[category]?.publicId) {
+        await deleteFromCloudinary(categoryImages[category].publicId)
+      }
+      setCategoryImages({
+        ...categoryImages,
+        [category]: null
+      })
+    }
   }
 
   const handleSave = (e) => {
@@ -239,7 +276,13 @@ function PortfolioPanel() {
 
   const handleAddCategory = () => {
     if (newCategoryName.trim() && !portfolioCategories.includes(newCategoryName.trim())) {
-      setPortfolioCategories([...portfolioCategories, newCategoryName.trim()])
+      const newCat = newCategoryName.trim()
+      setPortfolioCategories([...portfolioCategories, newCat])
+      // Initialize category image as null
+      setCategoryImages({
+        ...categoryImages,
+        [newCat]: null
+      })
       setNewCategoryName('')
       setAddingCategory(false)
     }
@@ -249,6 +292,17 @@ function PortfolioPanel() {
     if (cat === 'All') return
     if (window.confirm(`Delete category "${cat}"? Photos in this category will not be deleted.`)) {
       setPortfolioCategories(portfolioCategories.filter(c => c !== cat))
+      
+      // Delete category image if exists
+      if (categoryImages[cat]?.publicId) {
+        deleteFromCloudinary(categoryImages[cat].publicId)
+      }
+      
+      // Remove from categoryImages
+      const newCategoryImages = { ...categoryImages }
+      delete newCategoryImages[cat]
+      setCategoryImages(newCategoryImages)
+      
       if (selectedCategory === cat) setSelectedCategory('All')
     }
   }
@@ -292,6 +346,48 @@ function PortfolioPanel() {
           <button className="admin-add-category-btn" onClick={() => setAddingCategory(true)}>+ Add Category</button>
         )}
       </div>
+
+      {/* Category Profile Picture Upload */}
+      {selectedCategory !== 'All' && (
+        <div className="category-image-upload-section">
+          <h3 className="category-image-title">Category Profile Picture - {selectedCategory}</h3>
+          <p className="category-image-hint">Upload a profile picture for this category. This will appear in the circular button on the portfolio page.</p>
+          
+          <div className="category-image-container">
+            {categoryImages[selectedCategory]?.url ? (
+              <div className="category-image-preview">
+                <img src={categoryImages[selectedCategory].url} alt={selectedCategory} />
+                <button 
+                  className="category-image-delete-btn" 
+                  onClick={() => handleDeleteCategoryImage(selectedCategory)}
+                  title="Delete profile picture"
+                >
+                  🗑
+                </button>
+              </div>
+            ) : (
+              <div className="category-image-placeholder">
+                <span>{selectedCategory.charAt(0)}</span>
+              </div>
+            )}
+            
+            <div className="category-image-upload-controls">
+              <label className="category-image-upload-label">
+                <span>📁 {categoryImages[selectedCategory]?.url ? 'Change' : 'Upload'} Profile Picture</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => handleCategoryImageUpload(e, selectedCategory)} 
+                  style={{ display: 'none' }} 
+                  disabled={uploadingCategoryImage}
+                />
+              </label>
+              {uploadingCategoryImage && <p className="upload-status">Uploading...</p>}
+              {categoryImageUploadError && <p className="upload-error">{categoryImageUploadError}</p>}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="admin-panel-header">
         <span>{filteredPortfolio.length} items {selectedCategory !== 'All' ? `in ${selectedCategory}` : 'total'}</span>

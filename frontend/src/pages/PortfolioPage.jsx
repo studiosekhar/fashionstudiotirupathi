@@ -1,15 +1,34 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStudio } from '../context/StudioContext'
+import Lightbox from '../components/Lightbox'
 import './PortfolioPage.css'
 
 export default function PortfolioPage() {
-  const { portfolio, portfolioCategories } = useStudio()
+  const { portfolio, portfolioCategories, categoryImages } = useStudio()
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   const filteredPortfolio = selectedCategory === 'All'
     ? portfolio
     : portfolio.filter(item => item.category === selectedCategory)
+
+  const handleImageClick = (index) => {
+    setLightboxIndex(index)
+    setLightboxOpen(true)
+  }
+
+  const getCategoryImage = (category) => {
+    // Use uploaded category image if available
+    if (categoryImages[category]?.url) {
+      return categoryImages[category].url
+    }
+    
+    // Fallback to first photo in that category
+    const categoryPhotos = category === 'All' ? portfolio : portfolio.filter(p => p.category === category)
+    return categoryPhotos[0]?.url || null
+  }
 
   return (
     <div className="portfolio-page">
@@ -37,8 +56,7 @@ export default function PortfolioPage() {
       <section className="portfolio-categories-section">
         <div className="portfolio-categories-wrapper">
           {portfolioCategories.map(category => {
-            const categoryPhotos = category === 'All' ? portfolio : portfolio.filter(p => p.category === category)
-            const firstPhoto = categoryPhotos[0]
+            const categoryImageUrl = getCategoryImage(category)
             
             return (
               <button
@@ -47,8 +65,8 @@ export default function PortfolioPage() {
                 onClick={() => setSelectedCategory(category)}
               >
                 <div className="category-image-circle">
-                  {firstPhoto?.url ? (
-                    <img src={firstPhoto.url} alt={category} />
+                  {categoryImageUrl ? (
+                    <img src={categoryImageUrl} alt={category} />
                   ) : (
                     <div className="category-placeholder">{category.charAt(0)}</div>
                   )}
@@ -65,10 +83,11 @@ export default function PortfolioPage() {
         <div className="portfolio-container">
           {filteredPortfolio.length > 0 ? (
             <div className="portfolio-masonry-grid">
-              {filteredPortfolio.map((item) => (
+              {filteredPortfolio.map((item, idx) => (
                 <div 
                   key={item.id} 
                   className={`portfolio-grid-item${item.tall ? ' tall' : ''}${item.wide ? ' wide' : ''}`}
+                  onClick={() => handleImageClick(idx)}
                 >
                   <img src={item.url} alt={item.title || item.category} className="portfolio-grid-img" />
                   <div className="portfolio-grid-overlay">
@@ -94,6 +113,15 @@ export default function PortfolioPage() {
           <Link to="/" className="portfolio-footer-link">Back to Home</Link>
         </div>
       </footer>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <Lightbox
+          images={filteredPortfolio}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   )
 }
