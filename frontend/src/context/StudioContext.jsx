@@ -1,4 +1,17 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import {
+  portfolioService,
+  categoriesService,
+  categoryImagesService,
+  aboutService,
+  youtubeService,
+  servicesService,
+  testimonialsService,
+  inquiriesService,
+  heroPhotosService,
+  galleryService,
+} from '../services/firestoreService'
+import { db } from '../config/firebaseConfig'
 
 const StudioContext = createContext()
 
@@ -77,65 +90,381 @@ const DEFAULT_GALLERY_ITEMS = [
   { id: 10, url: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&h=600&fit=crop&auto=format', text: 'Studio' },
 ]
 
-function load(key, fallback) {
-  try {
-    const stored = localStorage.getItem(key)
-    return stored ? JSON.parse(stored) : fallback
-  } catch { return fallback }
-}
+/**
+ * Sync local data to Firestore (one-time migration)
+ * This runs only once to migrate existing localStorage data to Firestore
+ */
+async function migrateLocalStorageToFirestore() {
+  // Check if migration has already been done
+  const migrated = localStorage.getItem('fs_migrated_to_firestore')
+  if (migrated === 'true' || !db) return
 
-function save(key, value) {
-  localStorage.setItem(key, JSON.stringify(value))
+  console.log('🔄 Starting migration from localStorage to Firestore...')
+
+  try {
+    // Migrate portfolio
+    const localPortfolio = localStorage.getItem('fs_portfolio')
+    if (localPortfolio) {
+      const portfolioData = JSON.parse(localPortfolio)
+      for (const item of portfolioData) {
+        await portfolioService.set(String(item.id), item)
+      }
+      console.log('✅ Portfolio migrated')
+    }
+
+    // Migrate categories
+    const localCategories = localStorage.getItem('fs_portfolio_categories')
+    if (localCategories) {
+      await categoriesService.set({ categories: JSON.parse(localCategories) })
+      console.log('✅ Categories migrated')
+    }
+
+    // Migrate category images
+    const localCategoryImages = localStorage.getItem('fs_category_images')
+    if (localCategoryImages) {
+      const images = JSON.parse(localCategoryImages)
+      for (const [category, image] of Object.entries(images)) {
+        if (image) {
+          await categoryImagesService.set(category, image)
+        }
+      }
+      console.log('✅ Category images migrated')
+    }
+
+    // Migrate about data
+    const localAbout = localStorage.getItem('fs_about_data')
+    if (localAbout) {
+      await aboutService.set(JSON.parse(localAbout))
+      console.log('✅ About data migrated')
+    }
+
+    // Migrate YouTube videos
+    const localYoutube = localStorage.getItem('fs_youtube_videos')
+    if (localYoutube) {
+      const videos = JSON.parse(localYoutube)
+      for (const video of videos) {
+        await youtubeService.set(String(video.id), video)
+      }
+      console.log('✅ YouTube videos migrated')
+    }
+
+    // Migrate services
+    const localServices = localStorage.getItem('fs_services')
+    if (localServices) {
+      const services = JSON.parse(localServices)
+      for (const service of services) {
+        await servicesService.set(String(service.id), service)
+      }
+      console.log('✅ Services migrated')
+    }
+
+    // Migrate testimonials
+    const localTestimonials = localStorage.getItem('fs_testimonials')
+    if (localTestimonials) {
+      const testimonials = JSON.parse(localTestimonials)
+      for (const testimonial of testimonials) {
+        await testimonialsService.set(String(testimonial.id), testimonial)
+      }
+      console.log('✅ Testimonials migrated')
+    }
+
+    // Migrate inquiries
+    const localInquiries = localStorage.getItem('fs_inquiries')
+    if (localInquiries) {
+      const inquiries = JSON.parse(localInquiries)
+      for (const inquiry of inquiries) {
+        await inquiriesService.set(String(inquiry.id), inquiry)
+      }
+      console.log('✅ Inquiries migrated')
+    }
+
+    // Migrate hero photos
+    const localHero = localStorage.getItem('fs_hero_photos')
+    if (localHero) {
+      const photos = JSON.parse(localHero)
+      for (const photo of photos) {
+        await heroPhotosService.set(String(photo.id), photo)
+      }
+      console.log('✅ Hero photos migrated')
+    }
+
+    // Migrate gallery
+    const localGallery = localStorage.getItem('fs_gallery_v2')
+    if (localGallery) {
+      const items = JSON.parse(localGallery)
+      for (const item of items) {
+        await galleryService.set(String(item.id), item)
+      }
+      console.log('✅ Gallery items migrated')
+    }
+
+    // Mark migration as complete
+    localStorage.setItem('fs_migrated_to_firestore', 'true')
+    console.log('✅ Migration completed successfully!')
+  } catch (error) {
+    console.error('❌ Migration failed:', error)
+  }
 }
 
 export function StudioProvider({ children }) {
-  const [portfolio,    setPortfolioRaw]    = useState(() => load('fs_portfolio',    DEFAULT_PORTFOLIO))
-  const [portfolioCategories, setPortfolioCategoriesRaw] = useState(() => load('fs_portfolio_categories', DEFAULT_PORTFOLIO_CATEGORIES))
-  const [categoryImages, setCategoryImagesRaw] = useState(() => load('fs_category_images', DEFAULT_CATEGORY_IMAGES))
-  const [aboutData, setAboutDataRaw] = useState(() => load('fs_about_data', DEFAULT_ABOUT_DATA))
-  const [youtubeVideos, setYoutubeVideosRaw] = useState(() => load('fs_youtube_videos', DEFAULT_YOUTUBE_VIDEOS))
-  const [services,     setServicesRaw]     = useState(() => load('fs_services',     DEFAULT_SERVICES))
-  const [testimonials, setTestimonialsRaw] = useState(() => load('fs_testimonials', DEFAULT_TESTIMONIALS))
-  const [inquiries,    setInquiriesRaw]    = useState(() => load('fs_inquiries',    []))
-  const [heroPhotos,   setHeroPhotosRaw]   = useState(() => load('fs_hero_photos',  DEFAULT_HERO_PHOTOS))
-  const [galleryItems, setGalleryItemsRaw] = useState(() => load('fs_gallery_v2',     DEFAULT_GALLERY_ITEMS))
+  // State with default values
+  const [portfolio, setPortfolio] = useState(DEFAULT_PORTFOLIO)
+  const [portfolioCategories, setPortfolioCategories] = useState(DEFAULT_PORTFOLIO_CATEGORIES)
+  const [categoryImages, setCategoryImages] = useState(DEFAULT_CATEGORY_IMAGES)
+  const [aboutData, setAboutData] = useState(DEFAULT_ABOUT_DATA)
+  const [youtubeVideos, setYoutubeVideos] = useState(DEFAULT_YOUTUBE_VIDEOS)
+  const [services, setServices] = useState(DEFAULT_SERVICES)
+  const [testimonials, setTestimonials] = useState(DEFAULT_TESTIMONIALS)
+  const [inquiries, setInquiries] = useState([])
+  const [heroPhotos, setHeroPhotos] = useState(DEFAULT_HERO_PHOTOS)
+  const [galleryItems, setGalleryItems] = useState(DEFAULT_GALLERY_ITEMS)
+  const [loading, setLoading] = useState(true)
 
-  const setPortfolio    = v => { setPortfolioRaw(v);    save('fs_portfolio',    v) }
-  const setPortfolioCategories = v => { setPortfolioCategoriesRaw(v); save('fs_portfolio_categories', v) }
-  const setCategoryImages = v => { setCategoryImagesRaw(v); save('fs_category_images', v) }
-  const setAboutData = v => { setAboutDataRaw(v); save('fs_about_data', v) }
-  const setYoutubeVideos = v => { setYoutubeVideosRaw(v); save('fs_youtube_videos', v) }
-  const setServices     = v => { setServicesRaw(v);     save('fs_services',     v) }
-  const setTestimonials = v => { setTestimonialsRaw(v); save('fs_testimonials', v) }
-  const setInquiries    = v => { setInquiriesRaw(v);    save('fs_inquiries',    v) }
-  const setHeroPhotos   = v => { setHeroPhotosRaw(v);   save('fs_hero_photos',  v) }
-  const setGalleryItems = v => { setGalleryItemsRaw(v); save('fs_gallery_v2',      v) }
+  // Initialize data from Firestore or use defaults
+  useEffect(() => {
+    if (!db) {
+      console.warn('⚠️ Firebase not configured, using localStorage fallback')
+      setLoading(false)
+      return
+    }
 
-  const addInquiry = (data) => {
+    let unsubscribers = []
+
+    const initializeData = async () => {
+      try {
+        // Run migration first (only once)
+        await migrateLocalStorageToFirestore()
+
+        // Subscribe to portfolio
+        const unsubPortfolio = portfolioService.subscribe((data) => {
+          setPortfolio(data.length > 0 ? data : DEFAULT_PORTFOLIO)
+        })
+        unsubscribers.push(unsubPortfolio)
+
+        // Subscribe to categories
+        const unsubCategories = categoriesService.subscribe((data) => {
+          setPortfolioCategories(data?.categories || DEFAULT_PORTFOLIO_CATEGORIES)
+        })
+        unsubscribers.push(unsubCategories)
+
+        // Subscribe to category images
+        const unsubCategoryImages = categoryImagesService.subscribe((data) => {
+          const imagesMap = {}
+          data.forEach(item => {
+            imagesMap[item.id] = item
+          })
+          setCategoryImages({ ...DEFAULT_CATEGORY_IMAGES, ...imagesMap })
+        })
+        unsubscribers.push(unsubCategoryImages)
+
+        // Subscribe to about data
+        const unsubAbout = aboutService.subscribe((data) => {
+          setAboutData(data || DEFAULT_ABOUT_DATA)
+        })
+        unsubscribers.push(unsubAbout)
+
+        // Subscribe to YouTube videos
+        const unsubYoutube = youtubeService.subscribe((data) => {
+          setYoutubeVideos(data.length > 0 ? data : DEFAULT_YOUTUBE_VIDEOS)
+        })
+        unsubscribers.push(unsubYoutube)
+
+        // Subscribe to services
+        const unsubServices = servicesService.subscribe((data) => {
+          setServices(data.length > 0 ? data : DEFAULT_SERVICES)
+        })
+        unsubscribers.push(unsubServices)
+
+        // Subscribe to testimonials
+        const unsubTestimonials = testimonialsService.subscribe((data) => {
+          setTestimonials(data.length > 0 ? data : DEFAULT_TESTIMONIALS)
+        })
+        unsubscribers.push(unsubTestimonials)
+
+        // Subscribe to inquiries
+        const unsubInquiries = inquiriesService.subscribe((data) => {
+          setInquiries(data)
+        })
+        unsubscribers.push(unsubInquiries)
+
+        // Subscribe to hero photos
+        const unsubHero = heroPhotosService.subscribe((data) => {
+          setHeroPhotos(data.length > 0 ? data : DEFAULT_HERO_PHOTOS)
+        })
+        unsubscribers.push(unsubHero)
+
+        // Subscribe to gallery
+        const unsubGallery = galleryService.subscribe((data) => {
+          setGalleryItems(data.length > 0 ? data : DEFAULT_GALLERY_ITEMS)
+        })
+        unsubscribers.push(unsubGallery)
+
+        setLoading(false)
+        console.log('✅ Real-time sync enabled with Firestore')
+      } catch (error) {
+        console.error('❌ Error initializing Firestore:', error)
+        setLoading(false)
+      }
+    }
+
+    initializeData()
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      unsubscribers.forEach(unsub => unsub())
+    }
+  }, [])
+
+  // Helper function to update portfolio
+  const updatePortfolio = async (newPortfolio) => {
+    if (!db) {
+      setPortfolio(newPortfolio)
+      return
+    }
+
+    // Firestore subscription will update the state automatically
+    // We just need to save to Firestore
+    for (const item of newPortfolio) {
+      await portfolioService.set(String(item.id), item)
+    }
+  }
+
+  // Helper function to update categories
+  const updateCategories = async (newCategories) => {
+    if (!db) {
+      setPortfolioCategories(newCategories)
+      return
+    }
+
+    await categoriesService.set({ categories: newCategories })
+  }
+
+  // Helper function to update category images
+  const updateCategoryImages = async (newImages) => {
+    if (!db) {
+      setCategoryImages(newImages)
+      return
+    }
+
+    for (const [category, image] of Object.entries(newImages)) {
+      if (image) {
+        await categoryImagesService.set(category, image)
+      }
+    }
+  }
+
+  // Helper function to update about data
+  const updateAboutData = async (newData) => {
+    if (!db) {
+      setAboutData(newData)
+      return
+    }
+
+    await aboutService.set(newData)
+  }
+
+  // Helper function to update YouTube videos
+  const updateYoutubeVideos = async (newVideos) => {
+    if (!db) {
+      setYoutubeVideos(newVideos)
+      return
+    }
+
+    for (const video of newVideos) {
+      await youtubeService.set(String(video.id), video)
+    }
+  }
+
+  // Helper function to update services
+  const updateServices = async (newServices) => {
+    if (!db) {
+      setServices(newServices)
+      return
+    }
+
+    for (const service of newServices) {
+      await servicesService.set(String(service.id), service)
+    }
+  }
+
+  // Helper function to update testimonials
+  const updateTestimonials = async (newTestimonials) => {
+    if (!db) {
+      setTestimonials(newTestimonials)
+      return
+    }
+
+    for (const testimonial of newTestimonials) {
+      await testimonialsService.set(String(testimonial.id), testimonial)
+    }
+  }
+
+  // Helper function to update inquiries
+  const updateInquiries = async (newInquiries) => {
+    if (!db) {
+      setInquiries(newInquiries)
+      return
+    }
+
+    for (const inquiry of newInquiries) {
+      await inquiriesService.set(String(inquiry.id), inquiry)
+    }
+  }
+
+  // Helper function to update hero photos
+  const updateHeroPhotos = async (newPhotos) => {
+    if (!db) {
+      setHeroPhotos(newPhotos)
+      return
+    }
+
+    for (const photo of newPhotos) {
+      await heroPhotosService.set(String(photo.id), photo)
+    }
+  }
+
+  // Helper function to update gallery items
+  const updateGalleryItems = async (newItems) => {
+    if (!db) {
+      setGalleryItems(newItems)
+      return
+    }
+
+    for (const item of newItems) {
+      await galleryService.set(String(item.id), item)
+    }
+  }
+
+  // Add inquiry function
+  const addInquiry = async (data) => {
     const newInquiry = {
-      id: Date.now(), ...data,
+      id: Date.now(),
+      ...data,
       date: new Date().toISOString().split('T')[0],
       status: 'New',
     }
-    setInquiries(prev => {
-      const updated = [newInquiry, ...prev]
-      save('fs_inquiries', updated)
-      return updated
-    })
+
+    if (!db) {
+      setInquiries(prev => [newInquiry, ...prev])
+      return
+    }
+
+    await inquiriesService.set(String(newInquiry.id), newInquiry)
   }
 
   return (
     <StudioContext.Provider value={{
-      portfolio, setPortfolio,
-      portfolioCategories, setPortfolioCategories,
-      categoryImages, setCategoryImages,
-      aboutData, setAboutData,
-      youtubeVideos, setYoutubeVideos,
-      services, setServices,
-      testimonials, setTestimonials,
-      inquiries, setInquiries, addInquiry,
-      heroPhotos, setHeroPhotos,
-      galleryItems, setGalleryItems,
+      portfolio, setPortfolio: updatePortfolio,
+      portfolioCategories, setPortfolioCategories: updateCategories,
+      categoryImages, setCategoryImages: updateCategoryImages,
+      aboutData, setAboutData: updateAboutData,
+      youtubeVideos, setYoutubeVideos: updateYoutubeVideos,
+      services, setServices: updateServices,
+      testimonials, setTestimonials: updateTestimonials,
+      inquiries, setInquiries: updateInquiries, addInquiry,
+      heroPhotos, setHeroPhotos: updateHeroPhotos,
+      galleryItems, setGalleryItems: updateGalleryItems,
+      loading,
     }}>
       {children}
     </StudioContext.Provider>
