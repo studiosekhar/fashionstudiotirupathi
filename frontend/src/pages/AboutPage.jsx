@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { useStudio } from '../context/StudioContext'
 import Navbar from '../components/Navbar'
 import './AboutPage.css'

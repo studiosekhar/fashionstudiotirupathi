@@ -96,6 +96,14 @@ VITE_ADMIN_USER=your_admin_username
 VITE_ADMIN_PASS=your_admin_password
 VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
 VITE_CLOUDINARY_API_KEY=your_api_key
+
+# Firebase Configuration
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789012
+VITE_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
 ```
 
 ### Backend (.env)
@@ -103,6 +111,24 @@ VITE_CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 ```
+
+## 🔥 Firebase Setup
+
+This project uses Firebase Firestore for real-time data synchronization across all users.
+
+**Quick Start:**
+1. Follow the step-by-step guide in [`FIREBASE_SETUP_GUIDE.md`](./FIREBASE_SETUP_GUIDE.md)
+2. Create a Firebase project at https://console.firebase.google.com/
+3. Enable Firestore Database
+4. Copy your Firebase config to `.env` file
+5. Start the app - existing localStorage data will be migrated automatically!
+
+**Features:**
+- ✅ Real-time data sync across all devices
+- ✅ Automatic migration from localStorage
+- ✅ Admin changes visible to everyone instantly
+- ✅ Contact form submissions reach the admin
+- ✅ Persistent data storage
 
 ## 📦 Deployment
 

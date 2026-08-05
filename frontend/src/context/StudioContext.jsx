@@ -51,6 +51,8 @@ const DEFAULT_ABOUT_DATA = {
   photo: null,
 }
 
+const DEFAULT_YOUTUBE_VIDEOS = []
+
 const DEFAULT_PORTFOLIO = [
   { id: 1, title: 'Fashion Week 2026',  category: 'Wedding',     url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=600&fit=crop', tall: true  },
   { id: 2, title: 'Romantic Wedding',   category: 'Wedding',     url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=600&fit=crop', wide: true  },

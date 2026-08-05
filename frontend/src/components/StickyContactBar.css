@@ -1,0 +1,172 @@
+.sticky-contact-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 12, 41, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 999;
+  padding: 16px 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.sticky-contact-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.contact-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.contact-bar-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.95);
+}
+
+.contact-bar-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.contact-bar-divider {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 14px;
+}
+
+.contact-bar-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.contact-bar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.phone-btn {
+  background: rgba(139, 111, 71, 0.85);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.phone-btn:hover {
+  background: rgba(109, 86, 54, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 111, 71, 0.4);
+}
+
+.whatsapp-btn {
+  background: rgba(37, 211, 102, 0.9);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.whatsapp-btn:hover {
+  background: rgba(37, 211, 102, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.btn-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.btn-text {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .sticky-contact-content {
+    padding: 0 24px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contact-bar-info {
+    gap: 12px;
+    font-size: 11px;
+    justify-content: center;
+  }
+
+  .contact-bar-text {
+    font-size: 11px;
+  }
+
+  .contact-bar-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .sticky-contact-bar {
+    padding: 12px 0;
+  }
+
+  .sticky-contact-content {
+    padding: 0 16px;
+  }
+
+  .contact-bar-info {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .contact-bar-divider {
+    display: none;
+  }
+
+  .contact-bar-label,
+  .contact-bar-text {
+    font-size: 10px;
+  }
+
+  .contact-bar-buttons {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .contact-bar-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 11px;
+  }
+
+  .btn-icon {
+    font-size: 14px;
+  }
+
+  .btn-text {
+    font-size: 10px;
+  }
+}
