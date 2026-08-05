@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStudio } from '../context/StudioContext'
+import Navbar from '../components/Navbar'
 import Lightbox from '../components/Lightbox'
 import './PortfolioPage.css'
 
@@ -20,101 +21,93 @@ export default function PortfolioPage() {
   }
 
   const getCategoryImage = (category) => {
-    // Use uploaded category image if available
-    if (categoryImages[category]?.url) {
-      return categoryImages[category].url
-    }
-    
-    // Fallback to first photo in that category
-    const categoryPhotos = category === 'All' ? portfolio : portfolio.filter(p => p.category === category)
-    return categoryPhotos[0]?.url || null
+    if (categoryImages[category]?.url) return categoryImages[category].url
+    const photos = category === 'All' ? portfolio : portfolio.filter(p => p.category === category)
+    return photos[0]?.url || null
   }
 
   return (
-    <div className="portfolio-page">
-      {/* Header/Navbar */}
-      <nav className="portfolio-page-nav">
-        <div className="portfolio-nav-container">
-          <Link to="/" className="portfolio-back-btn">
-            <span>←</span> Back to Home
-          </Link>
-          <h1 className="portfolio-page-brand">FASHION STUDIO</h1>
-          <div></div> {/* Spacer for flex layout */}
-        </div>
-      </nav>
+    <div className="pf-page">
+      <Navbar />
 
-      {/* Hero Section */}
-      <section className="portfolio-hero">
-        <div className="portfolio-hero-content">
-          <span className="portfolio-label">PORTFOLIO</span>
-          <h1 className="portfolio-hero-title">OUR WORK</h1>
-          <p className="portfolio-hero-subtitle">Capturing moments that last forever</p>
+      {/* ── Hero title ── */}
+      <section className="pf-hero">
+        <div className="pf-hero-inner">
+          <span className="pf-hero-label">PORTFOLIO</span>
+          <h1 className="pf-hero-title">
+            <span className="pf-title-light">PORTFOLIO</span>
+            <span className="pf-title-bold">FEED</span>
+          </h1>
+          <div className="pf-hero-border-box" />
         </div>
       </section>
 
-      {/* Category Filters */}
-      <section className="portfolio-categories-section">
-        <div className="portfolio-categories-wrapper">
-          {portfolioCategories.map(category => {
-            const categoryImageUrl = getCategoryImage(category)
-            
+      {/* ── Category circles ── */}
+      <section className="pf-cats-section">
+        <div className="pf-cats-scroll">
+          {portfolioCategories.map(cat => {
+            const img = getCategoryImage(cat)
+            const isActive = selectedCategory === cat
             return (
               <button
-                key={category}
-                className={`portfolio-category-card ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(category)}
+                key={cat}
+                className={`pf-cat-btn${isActive ? ' active' : ''}`}
+                onClick={() => setSelectedCategory(cat)}
               >
-                <div className="category-image-circle">
-                  {categoryImageUrl ? (
-                    <img src={categoryImageUrl} alt={category} />
-                  ) : (
-                    <div className="category-placeholder">{category.charAt(0)}</div>
-                  )}
+                <div className="pf-cat-ring">
+                  <div className="pf-cat-circle">
+                    {img
+                      ? <img src={img} alt={cat} />
+                      : <span className="pf-cat-initial">{cat.charAt(0)}</span>
+                    }
+                  </div>
                 </div>
-                <span className="category-label">{category.toUpperCase()}</span>
+                <span className="pf-cat-label">{cat.toUpperCase()}</span>
               </button>
             )
           })}
         </div>
+        <div className="pf-cats-underline" />
       </section>
 
-      {/* Portfolio Grid */}
-      <section className="portfolio-grid-section">
-        <div className="portfolio-container">
-          {filteredPortfolio.length > 0 ? (
-            <div className="portfolio-masonry-grid">
-              {filteredPortfolio.map((item, idx) => (
-                <div 
-                  key={item.id} 
-                  className={`portfolio-grid-item${item.tall ? ' tall' : ''}${item.wide ? ' wide' : ''}`}
-                  onClick={() => handleImageClick(idx)}
-                >
-                  <img src={item.url} alt={item.title || item.category} className="portfolio-grid-img" />
-                  <div className="portfolio-grid-overlay">
-                    <h4>{item.title || item.category}</h4>
-                    <span>{item.category}</span>
-                  </div>
+      {/* ── Grid ── */}
+      <section className="pf-grid-section">
+        {filteredPortfolio.length > 0 ? (
+          <div className="pf-grid">
+            {filteredPortfolio.map((item, idx) => (
+              <div
+                key={item.id}
+                className={`pf-grid-item${item.tall ? ' tall' : ''}${item.wide ? ' wide' : ''}`}
+                onClick={() => handleImageClick(idx)}
+              >
+                <img
+                  src={item.url}
+                  alt={item.title || item.category}
+                  className="pf-grid-img"
+                  loading="lazy"
+                />
+                <div className="pf-grid-overlay">
+                  <h4>{item.title || item.category}</h4>
+                  <span>{item.category}</span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="portfolio-empty-state">
-              <p>No photos in this category yet.</p>
-              <p className="portfolio-empty-hint">Check back soon for new additions!</p>
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="pf-empty">
+            <p>No photos in this category yet.</p>
+            <span>Check back soon for new additions!</span>
+          </div>
+        )}
       </section>
 
-      {/* Footer */}
-      <footer className="portfolio-page-footer">
-        <div className="portfolio-footer-content">
-          <p>&copy; 2024 Fashion Studio. All rights reserved.</p>
-          <Link to="/" className="portfolio-footer-link">Back to Home</Link>
-        </div>
+      {/* ── Footer ── */}
+      <footer className="pf-footer">
+        <p>© {new Date().getFullYear()} Fashion Studio · All rights reserved</p>
+        <Link to="/" className="pf-footer-link">Back to Home</Link>
       </footer>
 
-      {/* Lightbox */}
+      {/* ── Lightbox ── */}
       {lightboxOpen && (
         <Lightbox
           images={filteredPortfolio}

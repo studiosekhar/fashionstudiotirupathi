@@ -12,9 +12,9 @@ import SocialSwipe from './components/SocialSwipe'
 import AdminPage from './pages/AdminPage'
 import PortfolioPage from './pages/PortfolioPage'
 import AboutPage from './pages/AboutPage'
+import YouTubePage from './pages/YouTubePage'
+import ContactPage from './pages/ContactPage'
 import './App.css'
-
-// Fashion Studio - Updated with About Page
 
 function Home() {
   return (
@@ -40,6 +40,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/youtube" element={<YouTubePage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
       </Routes>

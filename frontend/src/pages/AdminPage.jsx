@@ -66,6 +66,7 @@ export default function AdminPage() {
     { id: 'gallery',      label: '🎠 Gallery' },
     { id: 'services',     label: '✨ Services' },
     { id: 'testimonials', label: '💬 Testimonials' },
+    { id: 'youtube',      label: '▶️ YouTube' },
   ]
 
   const titles = {
@@ -76,6 +77,7 @@ export default function AdminPage() {
     gallery:      'Circular Gallery',
     services:     'Services Management',
     testimonials: 'Testimonials',
+    youtube:      'YouTube Videos',
   }
 
   return (
@@ -113,6 +115,7 @@ export default function AdminPage() {
           {activeTab === 'gallery'      && <GalleryPanel />}
           {activeTab === 'services'     && <ServicesPanel />}
           {activeTab === 'testimonials' && <TestimonialsPanel />}
+          {activeTab === 'youtube'      && <YouTubePanel />}
         </div>
       </main>
     </div>
@@ -121,15 +124,9 @@ export default function AdminPage() {
 
 /* ─── INQUIRIES ─── */
 function InquiriesPanel() {
-  const { inquiries, setInquiries } = useStudio()
+  const { inquiries, updateInquiryStatus, deleteInquiry } = useStudio()
 
-  const updateStatus = (id, status) => {
-    setInquiries(inquiries.map(i => i.id === id ? { ...i, status } : i))
-  }
-
-  const deleteInquiry = (id) => {
-    setInquiries(inquiries.filter(i => i.id !== id))
-  }
+  const updateStatus = (id, status) => updateInquiryStatus(id, status)
 
   if (inquiries.length === 0) {
     return (
@@ -1043,6 +1040,123 @@ function AboutUsPanel() {
             <button className="admin-edit-btn" onClick={handleEdit}>✏️ Edit Content</button>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+/* ─── YOUTUBE ─── */
+function YouTubePanel() {
+  const { youtubeVideos, setYoutubeVideos, deleteYoutubeVideo } = useStudio()
+  const [adding, setAdding] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [form, setForm] = useState({ title: '', url: '', description: '' })
+  const [confirmDelete, setConfirmDelete] = useState(null)
+
+  const openAdd = () => { setForm({ title: '', url: '', description: '' }); setEditing(null); setAdding(true) }
+  const openEdit = (v) => { setForm({ title: v.title, url: v.url, description: v.description || '' }); setEditing(v.id); setAdding(true) }
+
+  const handleSave = (e) => {
+    e.preventDefault()
+    if (editing) {
+      setYoutubeVideos((youtubeVideos || []).map(v => v.id === editing ? { ...v, ...form } : v))
+    } else {
+      setYoutubeVideos([...(youtubeVideos || []), { id: Date.now(), ...form }])
+    }
+    setAdding(false); setEditing(null)
+  }
+
+  const handleDelete = (item) => {
+    deleteYoutubeVideo(item.id)
+    setConfirmDelete(null)
+  }
+
+  // Extract YouTube thumbnail
+  const getThumbnail = (url) => {
+    const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/)
+    return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null
+  }
+
+  return (
+    <div className="admin-panel">
+      <div className="admin-panel-header">
+        <span>{(youtubeVideos || []).length} videos</span>
+        <button className="admin-add-btn" onClick={openAdd}>+ Add Video</button>
+      </div>
+
+      {adding && (
+        <form className="admin-add-form" onSubmit={handleSave}>
+          <input
+            placeholder="Video Title (optional)"
+            value={form.title}
+            onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+          />
+          <input
+            placeholder="YouTube URL (e.g. https://youtube.com/watch?v=...)"
+            value={form.url}
+            onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
+            required
+          />
+          <textarea
+            className="admin-textarea"
+            placeholder="Description (optional)"
+            value={form.description}
+            onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+            rows="2"
+          />
+          {form.url && getThumbnail(form.url) && (
+            <div className="upload-preview">
+              <img src={getThumbnail(form.url)} alt="thumbnail" onError={e => e.target.style.display='none'} />
+            </div>
+          )}
+          <div className="admin-form-actions">
+            <button type="submit" className="admin-save-btn">{editing ? 'Update' : 'Add'}</button>
+            <button type="button" className="admin-cancel-btn" onClick={() => { setAdding(false); setEditing(null) }}>Cancel</button>
+          </div>
+        </form>
+      )}
+
+      {confirmDelete && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Video?</h3>
+            <p>Remove "{confirmDelete.title || 'this video'}" from the YouTube page?</p>
+            <div className="confirm-dialog-actions">
+              <button className="admin-delete-btn" onClick={() => handleDelete(confirmDelete)}>Delete</button>
+              <button className="admin-cancel-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(!youtubeVideos || youtubeVideos.length === 0) && !adding && (
+        <div className="admin-empty">
+          <p>▶️ No YouTube videos added yet.</p>
+          <span>Click "+ Add Video" and paste a YouTube URL.</span>
+        </div>
+      )}
+
+      <div className="admin-grid">
+        {(youtubeVideos || []).map(video => {
+          const thumb = getThumbnail(video.url)
+          return (
+            <div key={video.id} className="admin-card">
+              {thumb
+                ? <img src={thumb} alt={video.title} onError={e => { e.target.src = 'https://via.placeholder.com/300x170?text=YouTube' }} />
+                : <div style={{height:'120px',background:'#222',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px'}}>▶</div>
+              }
+              <div className="admin-card-info">
+                <h4>{video.title || 'Untitled'}</h4>
+                <span className="admin-badge" style={{fontSize:'10px',wordBreak:'break-all'}}>{video.url?.slice(0, 40)}...</span>
+                {video.description && <p style={{fontSize:'12px',color:'#aaa',marginTop:'4px'}}>{video.description}</p>}
+              </div>
+              <div className="admin-card-actions">
+                <button className="admin-edit-btn" onClick={() => openEdit(video)}>✏️</button>
+                <button className="admin-delete-btn" onClick={() => setConfirmDelete(video)}>🗑</button>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
