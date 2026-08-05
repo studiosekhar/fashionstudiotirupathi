@@ -95,8 +95,6 @@ const DEFAULT_GALLERY_ITEMS = [
   { id: 10, url: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&h=600&fit=crop', text: 'Studio'         },
 ]
 
-const DEFAULT_YOUTUBE_VIDEOS = []
-
 function load(key, fallback) {
   try {
     const stored = localStorage.getItem(key)

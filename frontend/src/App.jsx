@@ -9,13 +9,11 @@ import Testimonials from './components/Testimonials'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import SocialSwipe from './components/SocialSwipe'
-import StickyContactBar from './components/StickyContactBar'
 import AdminPage from './pages/AdminPage'
 import ContactPage from './pages/ContactPage'
 import PortfolioPage from './pages/PortfolioPage'
 import AboutPage from './pages/AboutPage'
 import YouTubePage from './pages/YouTubePage'
-import ContactPage from './pages/ContactPage'
 import './App.css'
 
 function Home() {
@@ -31,7 +29,6 @@ function Home() {
       <Testimonials />
       <Contact />
       <Footer />
-      <StickyContactBar />
     </>
   )
 }
