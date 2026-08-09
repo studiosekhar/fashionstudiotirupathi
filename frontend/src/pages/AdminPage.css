@@ -1048,6 +1048,28 @@
   font-family: 'Montserrat', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: none;
+}
+
+.confirm-dialog-actions .admin-delete-btn {
+  background: #e53e3e;
+  color: #fff;
+  font-weight: 700;
+}
+
+.confirm-dialog-actions .admin-delete-btn:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+}
+
+.confirm-dialog-actions .admin-cancel-btn {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+.confirm-dialog-actions .admin-cancel-btn:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 /* ===== CATEGORY IMAGE UPLOAD SECTION ===== */

@@ -62,7 +62,6 @@ export default function AdminPage() {
     { id: 'inquiries',    label: '📬 Inquiries' },
     { id: 'portfolio',    label: '📸 Portfolio' },
     { id: 'about',        label: '👤 About Us' },
-    { id: 'youtube',      label: '🎬 YouTube' },
     { id: 'hero',         label: '🖼️ Hero Photos' },
     { id: 'gallery',      label: '🎠 Gallery' },
     { id: 'services',     label: '✨ Services' },
@@ -74,7 +73,6 @@ export default function AdminPage() {
     inquiries:    'Contact Inquiries',
     portfolio:    'Portfolio Management',
     about:        'About Us Page',
-    youtube:      'YouTube Videos',
     hero:         'Hero Polaroid Photos',
     gallery:      'Circular Gallery',
     services:     'Services Management',
@@ -113,7 +111,6 @@ export default function AdminPage() {
           {activeTab === 'inquiries'    && <InquiriesPanel />}
           {activeTab === 'portfolio'    && <PortfolioPanel />}
           {activeTab === 'about'        && <AboutUsPanel />}
-          {activeTab === 'youtube'      && <YouTubePanel />}
           {activeTab === 'hero'         && <HeroPhotosPanel />}
           {activeTab === 'gallery'      && <GalleryPanel />}
           {activeTab === 'services'     && <ServicesPanel />}
