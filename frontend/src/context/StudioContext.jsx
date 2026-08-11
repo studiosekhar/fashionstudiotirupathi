@@ -109,16 +109,16 @@ function save(key, value) {
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function StudioProvider({ children }) {
-  const [portfolio,            setPortfolioState]           = useState(() => load('fs_portfolio',            DEFAULT_PORTFOLIO))
-  const [portfolioCategories,  setPortfolioCategoriesState] = useState(() => load('fs_portfolio_categories', DEFAULT_PORTFOLIO_CATEGORIES))
-  const [categoryImages,       setCategoryImagesState]      = useState(() => load('fs_category_images',      DEFAULT_CATEGORY_IMAGES))
-  const [aboutData,            setAboutDataState]           = useState(() => load('fs_about_data',           DEFAULT_ABOUT_DATA))
-  const [services,             setServicesState]            = useState(() => load('fs_services',             DEFAULT_SERVICES))
-  const [testimonials,         setTestimonialsState]        = useState(() => load('fs_testimonials',         DEFAULT_TESTIMONIALS))
-  const [inquiries,            setInquiriesState]           = useState(() => load('fs_inquiries',            []))
-  const [heroPhotos,           setHeroPhotosState]          = useState(() => load('fs_hero_photos',          DEFAULT_HERO_PHOTOS))
-  const [galleryItems,         setGalleryItemsState]        = useState(() => load('fs_gallery_v2',           DEFAULT_GALLERY_ITEMS))
-  const [youtubeVideos,        setYoutubeVideosState]        = useState(() => load('fs_youtube_videos',       DEFAULT_YOUTUBE_VIDEOS))
+  const [portfolio,            setPortfolioState]           = useState(DEFAULT_PORTFOLIO)
+  const [portfolioCategories,  setPortfolioCategoriesState] = useState(DEFAULT_PORTFOLIO_CATEGORIES)
+  const [categoryImages,       setCategoryImagesState]      = useState(DEFAULT_CATEGORY_IMAGES)
+  const [aboutData,            setAboutDataState]           = useState(DEFAULT_ABOUT_DATA)
+  const [services,             setServicesState]            = useState(DEFAULT_SERVICES)
+  const [testimonials,         setTestimonialsState]        = useState(DEFAULT_TESTIMONIALS)
+  const [inquiries,            setInquiriesState]           = useState([])
+  const [heroPhotos,           setHeroPhotosState]          = useState(DEFAULT_HERO_PHOTOS)
+  const [galleryItems,         setGalleryItemsState]        = useState(DEFAULT_GALLERY_ITEMS)
+  const [youtubeVideos,        setYoutubeVideosState]       = useState(DEFAULT_YOUTUBE_VIDEOS)
 
   // ─── Initial load from Supabase ─────────────────────────────────────────────
 
