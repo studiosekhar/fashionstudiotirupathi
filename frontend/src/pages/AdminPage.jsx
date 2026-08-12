@@ -193,7 +193,7 @@ function InquiriesPanel() {
 
 /* ─── PORTFOLIO ─── */
 function PortfolioPanel() {
-  const { portfolio, setPortfolio, portfolioCategories, setPortfolioCategories, categoryImages, setCategoryImages } = useStudio()
+  const { portfolio, setPortfolio, deletePortfolioItem, portfolioCategories, setPortfolioCategories, categoryImages, setCategoryImages } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ title: '', category: '', url: '', publicId: '', tall: false, wide: false })
@@ -269,7 +269,7 @@ function PortfolioPanel() {
   }
 
   const handleDelete = async (item) => {
-    setPortfolio(portfolio.filter(p => p.id !== item.id))
+    await deletePortfolioItem(item.id)
     if (item.publicId) await deleteFromCloudinary(item.publicId)
     setConfirmDelete(null)
   }
@@ -470,7 +470,7 @@ function PortfolioPanel() {
 
 /* ─── SERVICES ─── */
 function ServicesPanel() {
-  const { services, setServices } = useStudio()
+  const { services, setServices, deleteService } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ icon: '', title: '', description: '' })
@@ -490,7 +490,7 @@ function ServicesPanel() {
   }
 
   const handleDelete = (item) => {
-    setServices(services.filter(s => s.id !== item.id))
+    deleteService(item.id)
     setConfirmDelete(null)
   }
 
@@ -547,7 +547,7 @@ function ServicesPanel() {
 
 /* ─── TESTIMONIALS ─── */
 function TestimonialsPanel() {
-  const { testimonials, setTestimonials } = useStudio()
+  const { testimonials, setTestimonials, deleteTestimonial } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ author: '', role: '', text: '' })
@@ -567,7 +567,7 @@ function TestimonialsPanel() {
   }
 
   const handleDelete = (item) => {
-    setTestimonials(testimonials.filter(t => t.id !== item.id))
+    deleteTestimonial(item.id)
     setConfirmDelete(null)
   }
 
@@ -623,7 +623,7 @@ function TestimonialsPanel() {
 
 /* ─── HERO PHOTOS ─── */
 function HeroPhotosPanel() {
-  const { heroPhotos, setHeroPhotos } = useStudio()
+  const { heroPhotos, setHeroPhotos, deleteHeroPhoto } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ url: '', publicId: '', alt: '', rotate: '0deg' })
@@ -661,7 +661,7 @@ function HeroPhotosPanel() {
   }
 
   const handleDelete = async (photo) => {
-    setHeroPhotos(heroPhotos.filter(p => p.id !== photo.id))
+    await deleteHeroPhoto(photo.id)
     if (photo.publicId) await deleteFromCloudinary(photo.publicId)
     setConfirmDelete(null)
   }
@@ -742,7 +742,7 @@ function HeroPhotosPanel() {
 
 /* ─── GALLERY ─── */
 function GalleryPanel() {
-  const { galleryItems, setGalleryItems } = useStudio()
+  const { galleryItems, setGalleryItems, deleteGalleryItem } = useStudio()
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ url: '', publicId: '', text: '' })
@@ -778,7 +778,7 @@ function GalleryPanel() {
   }
 
   const handleDelete = async (item) => {
-    setGalleryItems(galleryItems.filter(g => g.id !== item.id))
+    await deleteGalleryItem(item.id)
     if (item.publicId) await deleteFromCloudinary(item.publicId)
     setConfirmDelete(null)
   }
