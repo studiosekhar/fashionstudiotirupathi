@@ -44,7 +44,8 @@ export default function HomePortfolio() {
               <img 
                 src={item.url} 
                 alt={item.title || item.category} 
-                className="home-portfolio-img" 
+                className="home-portfolio-img"
+                loading="lazy"
               />
               <div className="home-portfolio-overlay">
                 <h4>{item.title || item.category}</h4>

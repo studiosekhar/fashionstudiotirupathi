@@ -163,9 +163,13 @@ export function StudioProvider({ children }) {
     loadFromSupabase()
   }, [])
 
-  // ─── Real-time subscriptions ─────────────────────────────────────────────────
+  // ─── Real-time subscriptions (only for admin) ────────────────────────────────
 
   useEffect(() => {
+    // Only enable real-time sync on admin page
+    const isAdmin = window.location.pathname.includes('/admin')
+    if (!isAdmin) return
+
     const unsubs = [
       portfolioService.subscribe(data     => setPortfolioState(data)),
       categoriesService.subscribe(data    => setPortfolioCategoriesState(data)),
