@@ -68,26 +68,9 @@ const DEFAULT_TESTIMONIALS = [
   { id: 3, author: 'Sofia Rossi',    role: 'Brand Manager, Bellezza Cosmetics',  text: 'The professionalism and artistry displayed throughout our campaign exceeded all expectations. True masters of their craft.' },
 ]
 
-const DEFAULT_HERO_PHOTOS = [
-  { id: 1, url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=400&fit=crop', alt: 'Fashion Photo 1', rotate: '3deg'  },
-  { id: 2, url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop', alt: 'Fashion Photo 2', rotate: '-4deg' },
-  { id: 3, url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=400&fit=crop', alt: 'Fashion Photo 3', rotate: '2deg'  },
-  { id: 4, url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=400&fit=crop', alt: 'Fashion Photo 4', rotate: '-3deg' },
-  { id: 5, url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=400&fit=crop', alt: 'Fashion Photo 5', rotate: '4deg'  },
-]
+const DEFAULT_HERO_PHOTOS = []
 
-const DEFAULT_GALLERY_ITEMS = [
-  { id: 1,  url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&h=600&fit=crop', text: 'Fashion Shoot'  },
-  { id: 2,  url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&h=600&fit=crop', text: 'Editorial'      },
-  { id: 3,  url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=600&fit=crop', text: 'Runway'         },
-  { id: 4,  url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&h=600&fit=crop', text: 'Portrait'       },
-  { id: 5,  url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&h=600&fit=crop', text: 'Street Style'   },
-  { id: 6,  url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800&h=600&fit=crop', text: 'Couture'        },
-  { id: 7,  url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&h=600&fit=crop', text: 'Wedding'        },
-  { id: 8,  url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&h=600&fit=crop', text: 'Bridal'         },
-  { id: 9,  url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop', text: 'Ceremony'       },
-  { id: 10, url: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&h=600&fit=crop', text: 'Studio'         },
-]
+const DEFAULT_GALLERY_ITEMS = []
 
 function load(key, fallback) {
   try {
