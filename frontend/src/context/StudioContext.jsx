@@ -53,13 +53,7 @@ const DEFAULT_ABOUT_DATA = {
 
 const DEFAULT_YOUTUBE_VIDEOS = []
 
-const DEFAULT_PORTFOLIO = [
-  { id: 1, title: 'Fashion Week 2026',  category: 'Wedding',     url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=600&fit=crop', tall: true  },
-  { id: 2, title: 'Romantic Wedding',   category: 'Wedding',     url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=600&fit=crop', wide: true  },
-  { id: 3, title: 'Bridal Elegance',    category: 'Pre-Wedding', url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=600&fit=crop' },
-  { id: 4, title: 'Haute Couture',      category: 'Engagement',  url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=600&fit=crop' },
-  { id: 5, title: 'Ceremony Moments',   category: 'Wedding',     url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&h=600&fit=crop', wide: true  },
-]
+const DEFAULT_PORTFOLIO = []
 
 const DEFAULT_SERVICES = [
   { id: 1, icon: '01', title: 'Editorial Photography',  description: 'Magazine-quality shoots with world-class styling and creative direction for fashion brands and publications.' },

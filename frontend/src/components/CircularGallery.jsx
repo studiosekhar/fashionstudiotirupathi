@@ -271,18 +271,8 @@ class App {
   }
 
   createMedias(items, bend = 1, textColor, borderRadius, font) {
-    const defaultItems = [
-      { image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&h=600&fit=crop', text: 'Fashion Shoot' },
-      { image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&h=600&fit=crop', text: 'Editorial' },
-      { image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=600&fit=crop', text: 'Runway' },
-      { image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&h=600&fit=crop', text: 'Portrait' },
-      { image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&h=600&fit=crop', text: 'Street Style' },
-      { image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800&h=600&fit=crop', text: 'Couture' },
-      { image: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&h=600&fit=crop', text: 'Wedding' },
-      { image: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&h=600&fit=crop', text: 'Bridal' },
-      { image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&h=600&fit=crop', text: 'Ceremony' },
-      { image: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&h=600&fit=crop', text: 'Studio' },
-    ];
+    // Only use Firebase images - no placeholders
+    const defaultItems = [];
     const galleryItems = items && items.length ? items : defaultItems;
     this.mediasImages = galleryItems.concat(galleryItems);
     this.medias = this.mediasImages.map((data, index) => new Media({
